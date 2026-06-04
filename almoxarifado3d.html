@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almoxarifado 3D — Usina Coruripe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f1117;font-family:'Segoe UI',sans-serif;overflow:hidden;color:#fff;}
+#canvas-container{position:fixed;inset:0;}
+#ui-top{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(180deg,rgba(15,17,23,0.95) 0%,transparent 100%);z-index:10;pointer-events:none;}
+#ui-top h1{font-size:15px;font-weight:600;letter-spacing:.5px;color:#e8eaf0;}
+#ui-top span{font-size:12px;color:#8891a8;}
+#legend{position:fixed;bottom:20px;left:20px;background:rgba(20,24,36,0.92);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;z-index:10;min-width:200px;}
+#legend h3{font-size:11px;font-weight:600;letter-spacing:.8px;color:#8891a8;text-transform:uppercase;margin-bottom:10px;}
+.leg-item{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px;color:#c4c9d8;}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+#filters{position:fixed;top:60px;left:20px;background:rgba(20,24,36,0.92);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;z-index:10;min-width:190px;}
+#filters h3{font-size:11px;font-weight:600;letter-spacing:.8px;color:#8891a8;text-transform:uppercase;margin-bottom:10px;}
+.filter-btn{display:block;width:100%;text-align:left;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#c4c9d8;font-size:12px;padding:7px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{background:rgba(99,179,237,0.15);border-color:rgba(99,179,237,0.4);color:#90cdf4;}
+#panel{position:fixed;top:60px;right:20px;width:280px;background:rgba(20,24,36,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;z-index:10;display:none;transform:translateX(20px);opacity:0;transition:all .3s;}
+#panel.show{display:block;transform:translateX(0);opacity:1;}
+#panel-close{position:absolute;top:12px;right:12px;background:none;border:none;color:#8891a8;font-size:18px;cursor:pointer;line-height:1;}
+#panel h2{font-size:14px;font-weight:600;color:#e8eaf0;margin-bottom:4px;padding-right:20px;}
+#panel .pos{font-size:11px;color:#8891a8;margin-bottom:16px;}
+.pstat{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.pstat:last-child{border-bottom:none;}
+.pstat-label{font-size:12px;color:#8891a8;}
+.pstat-value{font-size:13px;font-weight:500;color:#e8eaf0;}
+.pstat-value.red{color:#fc8181;}
+.pstat-value.yellow{color:#f6c90e;}
+.pstat-value.green{color:#68d391;}
+.pstat-value.blue{color:#76e4f7;}
+#hint{position:fixed;bottom:20px;right:20px;font-size:11px;color:#4a5568;pointer-events:none;}
+#total-bar{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(20,24,36,0.92);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 18px;z-index:10;display:flex;gap:24px;}
+.tstat{text-align:center;}
+.tstat-v{font-size:16px;font-weight:600;color:#90cdf4;}
+.tstat-l{font-size:10px;color:#8891a8;text-transform:uppercase;letter-spacing:.5px;}
+</style>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div id="ui-top">
+  <h1>ALMOXARIFADO 3D — USINA CORURIPE</h1>
+  <span>Gire: botão esquerdo &nbsp;|&nbsp; Zoom: scroll &nbsp;|&nbsp; Clique: selecionar posição</span>
+</div>
+<div id="total-bar">
+  <div class="tstat"><div class="tstat-v" id="tot-val">R$ 0</div><div class="tstat-l">Total imobilizado</div></div>
+  <div class="tstat"><div class="tstat-v" id="tot-pos">0</div><div class="tstat-l">Posições ocupadas</div></div>
+  <div class="tstat"><div class="tstat-v" id="tot-crit">0</div><div class="tstat-l">Itens críticos</div></div>
+</div>
+<div id="filters">
+  <h3>Corredor</h3>
+  <button class="filter-btn active" data-corridor="all">Todos</button>
+  <button class="filter-btn" data-corridor="A">A — Agrícola / Frotas</button>
+  <button class="filter-btn" data-corridor="B">B — Elétrica</button>
+  <button class="filter-btn" data-corridor="C">C — EPI + Limpeza</button>
+  <button class="filter-btn" data-corridor="D">D — Industrial</button>
+</div>
+<div id="legend">
+  <h3>Heatmap</h3>
+  <div class="leg-item"><div class="leg-dot" style="background:#e53e3e;"></div>Alto valor + baixo giro</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f6c90e;"></div>Alto valor + alto giro</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#48bb78;"></div>Baixo valor + alto giro</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4299e1;"></div>Baixo valor + baixo giro</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#2d3748;border:1px solid #4a5568;"></div>Posição vazia</div>
+</div>
+<div id="panel">
+  <button id="panel-close" onclick="closePanel()">×</button>
+  <h2 id="p-nome">—</h2>
+  <div class="pos" id="p-pos">—</div>
+  <div class="pstat"><span class="pstat-label">Código SAP</span><span class="pstat-value" id="p-cod">—</span></div>
+  <div class="pstat"><span class="pstat-label">Quantidade</span><span class="pstat-value" id="p-qty">—</span></div>
+  <div class="pstat"><span class="pstat-label">Valor unit.</span><span class="pstat-value" id="p-vunit">—</span></div>
+  <div class="pstat"><span class="pstat-label">Valor total</span><span class="pstat-value" id="p-vtot">—</span></div>
+  <div class="pstat"><span class="pstat-label">Giro mensal</span><span class="pstat-value" id="p-giro">—</span></div>
+  <div class="pstat"><span class="pstat-label">Última saída</span><span class="pstat-value" id="p-saida">—</span></div>
+  <div class="pstat"><span class="pstat-label">Status</span><span class="pstat-value" id="p-status">—</span></div>
+</div>
+<div id="hint">Arraste para rotacionar • Scroll para zoom</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DATA = [
+  // CORREDOR A — Agrícola / Frotas
+  {pos:"A-01-P1",nome:"Filtro de óleo colheitadeira",cod:"10023401",corredor:"A",qty:8,vunit:187.50,giro:3.2,saida:"12/05/2025",grupo:"Agrícola"},
+  {pos:"A-01-P2",nome:"Correia dentada trator",cod:"10023402",corredor:"A",qty:12,vunit:342.00,giro:2.1,saida:"03/04/2025",grupo:"Agrícola"},
+  {pos:"A-01-P3",nome:"Rolamento roda caminhão",cod:"10023403",corredor:"A",qty:6,vunit:890.00,giro:0.8,saida:"10/01/2025",grupo:"Agrícola"},
+  {pos:"A-01-P4",nome:"Kit vedação bomba hidráulica",cod:"10023404",corredor:"A",qty:15,vunit:145.00,giro:4.5,saida:"20/05/2025",grupo:"Agrícola"},
+  {pos:"A-02-P1",nome:"Pastilha de freio caminhão",cod:"10023405",corredor:"A",qty:24,vunit:210.00,giro:5.0,saida:"28/05/2025",grupo:"Frotas"},
+  {pos:"A-02-P2",nome:"Filtro combustível colheitadeira",cod:"10023406",corredor:"A",qty:10,vunit:98.00,giro:3.8,saida:"15/05/2025",grupo:"Agrícola"},
+  {pos:"A-02-P3",nome:"Amortecedor trator MF 297",cod:"10023407",corredor:"A",qty:4,vunit:1240.00,giro:0.4,saida:"15/11/2024",grupo:"Agrícola"},
+  {pos:"A-02-P4",nome:"Correia alternador caminhão",cod:"10023408",corredor:"A",qty:20,vunit:67.50,giro:6.2,saida:"30/05/2025",grupo:"Frotas"},
+  {pos:"A-03-P1",nome:"Vela aquecedora trator",cod:"10023409",corredor:"A",qty:16,vunit:54.00,giro:2.5,saida:"08/04/2025",grupo:"Agrícola"},
+  {pos:"A-03-P2",nome:"Sensor rotação colheitadeira",cod:"10023410",corredor:"A",qty:3,vunit:2100.00,giro:0.3,saida:"05/10/2024",grupo:"Agrícola"},
+  {pos:"A-03-P3",nome:"Filtro ar motor Case IH",cod:"10023411",corredor:"A",qty:9,vunit:178.00,giro:3.1,saida:"22/05/2025",grupo:"Agrícola"},
+  {pos:"A-03-P4",nome:"Pneu traseiro trator 18.4-34",cod:"10023412",corredor:"A",qty:2,vunit:3800.00,giro:0.2,saida:"20/08/2024",grupo:"Agrícola"},
+  {pos:"A-04-P1",nome:"Óleo hidráulico ISO 46 (20L)",cod:"10023413",corredor:"A",qty:18,vunit:185.00,giro:7.0,saida:"31/05/2025",grupo:"Frotas"},
+  {pos:"A-04-P2",nome:"Terminal bateria caminhão",cod:"10023414",corredor:"A",qty:30,vunit:28.00,giro:4.2,saida:"18/05/2025",grupo:"Frotas"},
+  {pos:"A-04-P3",nome:"Bomba d'água trator JD 5078E",cod:"10023415",corredor:"A",qty:2,vunit:1650.00,giro:0.5,saida:"14/02/2025",grupo:"Agrícola"},
+  {pos:"A-04-P4",nome:"",cod:"",corredor:"A",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"A-05-P1",nome:"Disco de corte base cortadora",cod:"10023416",corredor:"A",qty:40,vunit:95.00,giro:8.5,saida:"01/06/2025",grupo:"Agrícola"},
+  {pos:"A-05-P2",nome:"Rolamento agulha colheitadeira",cod:"10023417",corredor:"A",qty:5,vunit:420.00,giro:1.2,saida:"10/03/2025",grupo:"Agrícola"},
+  {pos:"A-05-P3",nome:"Filtro hidráulico retorno",cod:"10023418",corredor:"A",qty:12,vunit:132.00,giro:3.6,saida:"25/05/2025",grupo:"Agrícola"},
+  {pos:"A-05-P4",nome:"",cod:"",corredor:"A",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  // CORREDOR B — Elétrica
+  {pos:"B-01-P1",nome:"Cabo PP 4x6mm (rolo 100m)",cod:"20011201",corredor:"B",qty:3,vunit:1870.00,giro:0.6,saida:"12/02/2025",grupo:"Elétrica"},
+  {pos:"B-01-P2",nome:"Disjuntor tripolar 100A",cod:"20011202",corredor:"B",qty:8,vunit:245.00,giro:1.4,saida:"28/03/2025",grupo:"Elétrica"},
+  {pos:"B-01-P3",nome:"Contator 3RT 40A Siemens",cod:"20011203",corredor:"B",qty:6,vunit:380.00,giro:2.0,saida:"10/04/2025",grupo:"Elétrica"},
+  {pos:"B-01-P4",nome:"Inversor de frequência 5cv",cod:"20011204",corredor:"B",qty:2,vunit:3200.00,giro:0.4,saida:"05/11/2024",grupo:"Elétrica"},
+  {pos:"B-02-P1",nome:"Relé térmico 12-18A",cod:"20011205",corredor:"B",qty:12,vunit:98.00,giro:2.8,saida:"20/05/2025",grupo:"Elétrica"},
+  {pos:"B-02-P2",nome:"Transformador 10 KVA 380/220V",cod:"20011206",corredor:"B",qty:1,vunit:4800.00,giro:0.1,saida:"10/07/2024",grupo:"Elétrica"},
+  {pos:"B-02-P3",nome:"Lâmpada LED industrial 150W",cod:"20011207",corredor:"B",qty:20,vunit:87.00,giro:3.5,saida:"18/05/2025",grupo:"Elétrica"},
+  {pos:"B-02-P4",nome:"Fusível NH1 160A",cod:"20011208",corredor:"B",qty:15,vunit:42.00,giro:4.0,saida:"26/05/2025",grupo:"Elétrica"},
+  {pos:"B-03-P1",nome:"Cabo de comando 12x1,5mm",cod:"20011209",corredor:"B",qty:2,vunit:1240.00,giro:0.7,saida:"08/01/2025",grupo:"Elétrica"},
+  {pos:"B-03-P2",nome:"Sensor indutivo M18 NPN",cod:"20011210",corredor:"B",qty:10,vunit:165.00,giro:2.2,saida:"15/04/2025",grupo:"Elétrica"},
+  {pos:"B-03-P3",nome:"Chave fim de curso metal",cod:"20011211",corredor:"B",qty:8,vunit:210.00,giro:1.8,saida:"22/03/2025",grupo:"Elétrica"},
+  {pos:"B-03-P4",nome:"",cod:"",corredor:"B",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"B-04-P1",nome:"Borne DIN 4mm (cx 50un)",cod:"20011212",corredor:"B",qty:6,vunit:145.00,giro:3.0,saida:"28/05/2025",grupo:"Elétrica"},
+  {pos:"B-04-P2",nome:"Inversor 15cv Schneider ATV310",cod:"20011213",corredor:"B",qty:1,vunit:6800.00,giro:0.2,saida:"15/09/2024",grupo:"Elétrica"},
+  {pos:"B-04-P3",nome:"Fita isolante alta tensão (cx)",cod:"20011214",corredor:"B",qty:24,vunit:32.00,giro:5.5,saida:"01/06/2025",grupo:"Elétrica"},
+  {pos:"B-04-P4",nome:"Luva de conexão isolada (cx)",cod:"20011215",corredor:"B",qty:18,vunit:28.50,giro:4.8,saida:"30/05/2025",grupo:"Elétrica"},
+  {pos:"B-05-P1",nome:"Motor elétrico 5cv 4 polos",cod:"20011216",corredor:"B",qty:2,vunit:2100.00,giro:0.5,saida:"20/02/2025",grupo:"Elétrica"},
+  {pos:"B-05-P2",nome:"Disjuntor motor DM-1 25A",cod:"20011217",corredor:"B",qty:10,vunit:185.00,giro:2.4,saida:"12/05/2025",grupo:"Elétrica"},
+  {pos:"B-05-P3",nome:"",cod:"",corredor:"B",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"B-05-P4",nome:"Cabo PP 2x2,5mm (rolo 100m)",cod:"20011218",corredor:"B",qty:4,vunit:680.00,giro:1.5,saida:"08/04/2025",grupo:"Elétrica"},
+  // CORREDOR C — EPI + Limpeza
+  {pos:"C-01-P1",nome:"Capacete ABA aba total Vonder",cod:"30005601",corredor:"C",qty:30,vunit:48.00,giro:6.0,saida:"01/06/2025",grupo:"EPI"},
+  {pos:"C-01-P2",nome:"Luva vaqueta CA 10578",cod:"30005602",corredor:"C",qty:60,vunit:22.50,giro:8.0,saida:"31/05/2025",grupo:"EPI"},
+  {pos:"C-01-P3",nome:"Bota PVC cano longo 44",cod:"30005603",corredor:"C",qty:15,vunit:68.00,giro:3.2,saida:"22/05/2025",grupo:"EPI"},
+  {pos:"C-01-P4",nome:"Óculos proteção incolor",cod:"30005604",corredor:"C",qty:50,vunit:18.00,giro:7.5,saida:"01/06/2025",grupo:"EPI"},
+  {pos:"C-02-P1",nome:"Protetor auricular espuma (cx)",cod:"30005605",corredor:"C",qty:10,vunit:85.00,giro:5.0,saida:"28/05/2025",grupo:"EPI"},
+  {pos:"C-02-P2",nome:"Máscara semi-facial PFF2",cod:"30005606",corredor:"C",qty:8,vunit:42.00,giro:4.5,saida:"26/05/2025",grupo:"EPI"},
+  {pos:"C-02-P3",nome:"Cinto segurança talabarte duplo",cod:"30005607",corredor:"C",qty:6,vunit:320.00,giro:1.0,saida:"10/03/2025",grupo:"EPI"},
+  {pos:"C-02-P4",nome:"Protetor facial face shield",cod:"30005608",corredor:"C",qty:12,vunit:95.00,giro:2.8,saida:"15/04/2025",grupo:"EPI"},
+  {pos:"C-03-P1",nome:"Detergente industrial 5L",cod:"30005609",corredor:"C",qty:24,vunit:38.00,giro:6.5,saida:"30/05/2025",grupo:"Limpeza"},
+  {pos:"C-03-P2",nome:"Álcool isopropílico 99% 1L",cod:"30005610",corredor:"C",qty:18,vunit:28.00,giro:5.8,saida:"01/06/2025",grupo:"Limpeza"},
+  {pos:"C-03-P3",nome:"Desincrustante ácido 5L",cod:"30005611",corredor:"C",qty:10,vunit:92.00,giro:2.0,saida:"08/04/2025",grupo:"Limpeza"},
+  {pos:"C-03-P4",nome:"Luva nitrílica descartável (cx)",cod:"30005612",corredor:"C",qty:20,vunit:65.00,giro:7.0,saida:"31/05/2025",grupo:"EPI"},
+  {pos:"C-04-P1",nome:"Pano absorvente industrial (pc)",cod:"30005613",corredor:"C",qty:15,vunit:55.00,giro:4.2,saida:"28/05/2025",grupo:"Limpeza"},
+  {pos:"C-04-P2",nome:"Sabão líquido industrial 5L",cod:"30005614",corredor:"C",qty:12,vunit:48.00,giro:5.5,saida:"01/06/2025",grupo:"Limpeza"},
+  {pos:"C-04-P3",nome:"Avental PVC químico",cod:"30005615",corredor:"C",qty:8,vunit:145.00,giro:1.5,saida:"20/03/2025",grupo:"EPI"},
+  {pos:"C-04-P4",nome:"",cod:"",corredor:"C",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"C-05-P1",nome:"Hipoclorito sódio 12% 20L",cod:"30005616",corredor:"C",qty:6,vunit:110.00,giro:3.0,saida:"15/05/2025",grupo:"Limpeza"},
+  {pos:"C-05-P2",nome:"Vassoura industrial 60cm",cod:"30005617",corredor:"C",qty:10,vunit:42.00,giro:2.5,saida:"10/04/2025",grupo:"Limpeza"},
+  {pos:"C-05-P3",nome:"",cod:"",corredor:"C",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"C-05-P4",nome:"Respirador semifacial VOC",cod:"30005618",corredor:"C",qty:4,vunit:285.00,giro:0.8,saida:"05/02/2025",grupo:"EPI"},
+  // CORREDOR D — Industrial / Processo
+  {pos:"D-01-P1",nome:"Rolamento esférico 6205-2RS",cod:"40018901",corredor:"D",qty:20,vunit:48.00,giro:5.5,saida:"30/05/2025",grupo:"Industrial"},
+  {pos:"D-01-P2",nome:"Retentor 40x62x10 NBR",cod:"40018902",corredor:"D",qty:15,vunit:32.00,giro:4.0,saida:"22/05/2025",grupo:"Industrial"},
+  {pos:"D-01-P3",nome:"Válvula gaveta 3\" inox",cod:"40018903",corredor:"D",qty:4,vunit:1250.00,giro:0.6,saida:"18/02/2025",grupo:"Industrial"},
+  {pos:"D-01-P4",nome:"Bomba centrífuga 2\" 3cv",cod:"40018904",corredor:"D",qty:2,vunit:2800.00,giro:0.3,saida:"10/11/2024",grupo:"Industrial"},
+  {pos:"D-02-P1",nome:"Correia transportadora B-80",cod:"40018905",corredor:"D",qty:8,vunit:680.00,giro:1.2,saida:"08/03/2025",grupo:"Industrial"},
+  {pos:"D-02-P2",nome:"Gaxeta grafitada DN50",cod:"40018906",corredor:"D",qty:30,vunit:18.50,giro:6.0,saida:"01/06/2025",grupo:"Industrial"},
+  {pos:"D-02-P3",nome:"Redutor de velocidade 1:20",cod:"40018907",corredor:"D",qty:2,vunit:4200.00,giro:0.2,saida:"05/08/2024",grupo:"Industrial"},
+  {pos:"D-02-P4",nome:"Mancal fixo UCP 205",cod:"40018908",corredor:"D",qty:10,vunit:125.00,giro:2.5,saida:"15/04/2025",grupo:"Industrial"},
+  {pos:"D-03-P1",nome:"Tubo inox 316L 1\" (6m)",cod:"40018909",corredor:"D",qty:5,vunit:890.00,giro:0.8,saida:"12/01/2025",grupo:"Industrial"},
+  {pos:"D-03-P2",nome:"Válvula esfera 2\" PVC",cod:"40018910",corredor:"D",qty:8,vunit:185.00,giro:2.0,saida:"28/04/2025",grupo:"Industrial"},
+  {pos:"D-03-P3",nome:"Rolamento rolete 22208 EK",cod:"40018911",corredor:"D",qty:6,vunit:420.00,giro:1.5,saida:"20/03/2025",grupo:"Industrial"},
+  {pos:"D-03-P4",nome:"Acoplamento elástico Falk",cod:"40018912",corredor:"D",qty:4,vunit:780.00,giro:0.7,saida:"15/01/2025",grupo:"Industrial"},
+  {pos:"D-04-P1",nome:"O-ring kit sortido (cx 200pc)",cod:"40018913",corredor:"D",qty:10,vunit:95.00,giro:5.0,saida:"28/05/2025",grupo:"Industrial"},
+  {pos:"D-04-P2",nome:"Grelha de retenção 150x150",cod:"40018914",corredor:"D",qty:6,vunit:340.00,giro:1.0,saida:"10/02/2025",grupo:"Industrial"},
+  {pos:"D-04-P3",nome:"Sensor pressão 4-20mA 0-10bar",cod:"40018915",corredor:"D",qty:3,vunit:1850.00,giro:0.5,saida:"20/01/2025",grupo:"Industrial"},
+  {pos:"D-04-P4",nome:"",cod:"",corredor:"D",qty:0,vunit:0,giro:0,saida:"",grupo:""},
+  {pos:"D-05-P1",nome:"Correia V SPB-2500",cod:"40018916",corredor:"D",qty:12,vunit:145.00,giro:3.5,saida:"20/05/2025",grupo:"Industrial"},
+  {pos:"D-05-P2",nome:"Flange cega DN80 PN10",cod:"40018917",corredor:"D",qty:8,vunit:210.00,giro:1.8,saida:"18/03/2025",grupo:"Industrial"},
+  {pos:"D-05-P3",nome:"Parafuso sextavado M20x80 (cx)",cod:"40018918",corredor:"D",qty:5,vunit:185.00,giro:4.2,saida:"26/05/2025",grupo:"Industrial"},
+  {pos:"D-05-P4",nome:"Lubrificante grease NLGI 2 (kg)",cod:"40018919",corredor:"D",qty:20,vunit:68.00,giro:6.0,saida:"01/06/2025",grupo:"Industrial"},
+];
+
+function getColor(d){
+  if(!d.nome) return 0x2d3748;
+  const maxV=DATA.reduce((m,x)=>Math.max(m,x.qty*x.vunit),0);
+  const maxG=DATA.reduce((m,x)=>Math.max(m,x.giro),0);
+  const vn=(d.qty*d.vunit)/maxV;
+  const gn=d.giro/maxG;
+  if(vn>0.5 && gn<0.35) return 0xe53e3e;
+  if(vn>0.5 && gn>=0.35) return 0xf6c90e;
+  if(vn<=0.5 && gn>=0.35) return 0x48bb78;
+  return 0x4299e1;
+}
+
+function getStatusLabel(d){
+  if(!d.nome) return {txt:"Vazio",cls:""};
+  const maxV=DATA.reduce((m,x)=>Math.max(m,x.qty*x.vunit),0);
+  const maxG=DATA.reduce((m,x)=>Math.max(m,x.giro),0);
+  const vn=(d.qty*d.vunit)/maxV;
+  const gn=d.giro/maxG;
+  if(vn>0.5 && gn<0.35) return {txt:"⚠ Imobilizado crítico",cls:"red"};
+  if(vn>0.5 && gn>=0.35) return {txt:"★ Crítico operacional",cls:"yellow"};
+  if(vn<=0.5 && gn>=0.35) return {txt:"✓ Giro saudável",cls:"green"};
+  return {txt:"○ Baixo giro",cls:"blue"};
+}
+
+const fmtBRL=(v)=>"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// Three.js setup
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0f1117);
+scene.fog=new THREE.Fog(0x0f1117,60,120);
+
+const W=window.innerWidth,H=window.innerHeight;
+const camera=new THREE.PerspectiveCamera(45,W/H,0.1,200);
+camera.position.set(0,18,38);
+camera.lookAt(0,0,0);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(W,H);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById("canvas-container").appendChild(renderer.domElement);
+
+// Lights
+const ambLight=new THREE.AmbientLight(0xffffff,0.4);
+scene.add(ambLight);
+const dirLight=new THREE.DirectionalLight(0xffffff,0.8);
+dirLight.position.set(10,20,10);
+dirLight.castShadow=true;
+scene.add(dirLight);
+const fillLight=new THREE.DirectionalLight(0x8888ff,0.3);
+fillLight.position.set(-10,5,-10);
+scene.add(fillLight);
+
+// Floor grid
+const gridHelper=new THREE.GridHelper(80,40,0x1a2035,0x1a2035);
+scene.add(gridHelper);
+const floorGeo=new THREE.PlaneGeometry(80,80);
+const floorMat=new THREE.MeshLambertMaterial({color:0x131820});
+const floor=new THREE.Mesh(floorGeo,floorMat);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=-0.01;
+floor.receiveShadow=true;
+scene.add(floor);
+
+// Build shelves
+const CORRIDORS=["A","B","C","D"];
+const SHELVES=5;
+const LEVELS=4;
+const SHELF_W=2.8,SHELF_D=1.2,SHELF_H=5.2;
+const SLOT_W=2.4,SLOT_D=0.9,SLOT_H=0.85;
+const CORR_SPACING=8;
+const SHELF_SPACING=3.6;
+const CORR_OFFSET=-((CORRIDORS.length-1)*CORR_SPACING)/2;
+
+const clickables=[];
+const meshMap={};
+
+// Corridor labels
+const makeLabel=(text,pos)=>{
+  const canvas=document.createElement("canvas");
+  canvas.width=256;canvas.height=64;
+  const ctx=canvas.getContext("2d");
+  ctx.fillStyle="rgba(0,0,0,0)";
+  ctx.fillRect(0,0,256,64);
+  ctx.font="bold 28px Segoe UI";
+  ctx.fillStyle="#90cdf4";
+  ctx.textAlign="center";
+  ctx.fillText(text,128,42);
+  const tex=new THREE.CanvasTexture(canvas);
+  const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide});
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(4,1),mat);
+  mesh.position.set(pos.x,pos.y,pos.z);
+  mesh.rotation.x=-Math.PI/4;
+  scene.add(mesh);
+};
+
+CORRIDORS.forEach((corr,ci)=>{
+  const cx=CORR_OFFSET+ci*CORR_SPACING;
+  const names=["Agrícola / Frotas","Elétrica","EPI + Limpeza","Industrial"];
+  makeLabel(`Corredor ${corr} — ${names[ci]}`,{x:cx,y:7.5,z:SHELF_SPACING*(SHELVES-1)/2+2.5});
+
+  for(let si=0;si<SHELVES;si++){
+    const sz=-(si*SHELF_SPACING)+SHELF_SPACING*(SHELVES-1)/2;
+
+    // Shelf frame
+    const frameMat=new THREE.MeshLambertMaterial({color:0x1e2d40});
+    // Uprights
+    [[-SHELF_W/2+0.08],[SHELF_W/2-0.08]].forEach(([ox])=>{
+      const upGeo=new THREE.BoxGeometry(0.08,SHELF_H,SHELF_D);
+      const up=new THREE.Mesh(upGeo,frameMat);
+      up.position.set(cx+ox,SHELF_H/2,sz);
+      up.castShadow=true;
+      scene.add(up);
+    });
+    // Horizontals (shelves boards)
+    for(let li=0;li<=LEVELS;li++){
+      const y=0.3+li*(SHELF_H/LEVELS);
+      const boardGeo=new THREE.BoxGeometry(SHELF_W,0.06,SHELF_D);
+      const board=new THREE.Mesh(boardGeo,new THREE.MeshLambertMaterial({color:0x243044}));
+      board.position.set(cx,y,sz);
+      board.castShadow=true;
+      board.receiveShadow=true;
+      scene.add(board);
+    }
+
+    // Slots
+    for(let li=0;li<LEVELS;li++){
+      const py=0.3+(li*(SHELF_H/LEVELS))+(SHELF_H/LEVELS)/2-0.1;
+      const posKey=`${corr}-0${si+1}-P${li+1}`;
+      const d=DATA.find(x=>x.pos===posKey);
+      if(!d) continue;
+
+      const col=getColor(d);
+      const isEmpty=!d.nome;
+
+      const slotGeo=new THREE.BoxGeometry(SLOT_W,SLOT_H*0.7,SLOT_D);
+      const slotMat=new THREE.MeshLambertMaterial({
+        color:col,
+        transparent:isEmpty,
+        opacity:isEmpty?0.15:0.85
+      });
+      const slot=new THREE.Mesh(slotGeo,slotMat);
+      slot.position.set(cx,py,sz);
+      slot.castShadow=true;
+      slot.receiveShadow=true;
+      slot.userData={data:d,origColor:col,origPos:{x:cx,y:py,z:sz}};
+      scene.add(slot);
+
+      if(!isEmpty){
+        clickables.push(slot);
+        meshMap[posKey]=slot;
+      }
+
+      // Slot edge glow
+      if(!isEmpty){
+        const edgeGeo=new THREE.EdgesGeometry(slotGeo);
+        const edgeMat=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.12});
+        const edges=new THREE.LineSegments(edgeGeo,edgeMat);
+        edges.position.set(cx,py,sz);
+        scene.add(edges);
+      }
+    }
+  }
+});
+
+// Orbit controls (manual)
+let isDragging=false,prevMouse={x:0,y:0};
+let theta=-0.3,phi=0.9,radius=38;
+let targetTheta=theta,targetPhi=phi,targetRadius=radius;
+let targetLookAt=new THREE.Vector3(0,0,0);
+let currentLookAt=new THREE.Vector3(0,0,0);
+
+renderer.domElement.addEventListener("mousedown",e=>{isDragging=true;prevMouse={x:e.clientX,y:e.clientY};});
+window.addEventListener("mouseup",()=>isDragging=false);
+window.addEventListener("mousemove",e=>{
+  if(!isDragging) return;
+  const dx=e.clientX-prevMouse.x,dy=e.clientY-prevMouse.y;
+  targetTheta-=dx*0.008;
+  targetPhi=Math.max(0.2,Math.min(1.4,targetPhi-dy*0.008));
+  prevMouse={x:e.clientX,y:e.clientY};
+});
+renderer.domElement.addEventListener("wheel",e=>{
+  targetRadius=Math.max(10,Math.min(70,targetRadius+e.deltaY*0.05));
+});
+
+// Raycaster
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+let selectedMesh=null;
+
+renderer.domElement.addEventListener("click",e=>{
+  if(Math.abs(e.movementX)>3||Math.abs(e.movementY)>3) return;
+  mouse.x=(e.clientX/window.innerWidth)*2-1;
+  mouse.y=-(e.clientY/window.innerHeight)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(clickables);
+  if(hits.length>0){
+    const mesh=hits[0].object;
+    selectSlot(mesh);
+  }
+});
+
+function selectSlot(mesh){
+  if(selectedMesh){
+    selectedMesh.material.emissive=new THREE.Color(0x000000);
+    selectedMesh.material.emissiveIntensity=0;
+  }
+  selectedMesh=mesh;
+  mesh.material.emissive=new THREE.Color(0xffffff);
+  mesh.material.emissiveIntensity=0.25;
+
+  const p=mesh.userData.origPos;
+  targetLookAt.set(p.x,p.y,p.z);
+  targetRadius=16;
+  targetPhi=0.7;
+
+  const d=mesh.userData.data;
+  showPanel(d,mesh);
+}
+
+function showPanel(d){
+  const s=getStatusLabel(d);
+  document.getElementById("p-nome").textContent=d.nome;
+  document.getElementById("p-pos").textContent="Posição: "+d.pos+" | Grupo: "+d.grupo;
+  document.getElementById("p-cod").textContent=d.cod;
+  document.getElementById("p-qty").textContent=d.qty+" un";
+  document.getElementById("p-vunit").textContent=fmtBRL(d.vunit);
+  document.getElementById("p-vtot").textContent=fmtBRL(d.qty*d.vunit);
+  document.getElementById("p-giro").textContent=d.giro.toFixed(1)+" saídas/mês";
+  document.getElementById("p-saida").textContent=d.saida||"—";
+  const el=document.getElementById("p-status");
+  el.textContent=s.txt;
+  el.className="pstat-value "+s.cls;
+  document.getElementById("panel").classList.add("show");
+}
+
+window.closePanel=function(){
+  document.getElementById("panel").classList.remove("show");
+  if(selectedMesh){
+    selectedMesh.material.emissive=new THREE.Color(0x000000);
+    selectedMesh=null;
+  }
+  targetLookAt.set(0,0,0);
+  targetRadius=38;
+  targetPhi=0.9;
+};
+
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const corr=btn.dataset.corridor;
+    clickables.forEach(m=>{
+      const d=m.userData.data;
+      const show=corr==="all"||d.corredor===corr;
+      m.material.opacity=show?0.85:0.08;
+      m.material.transparent=!show||false;
+    });
+    if(corr!=="all"){
+      const ci=CORRIDORS.indexOf(corr);
+      const cx=CORR_OFFSET+ci*CORR_SPACING;
+      targetLookAt.set(cx,3,0);
+      targetRadius=22;
+      targetPhi=0.75;
+    } else {
+      targetLookAt.set(0,0,0);
+      targetRadius=38;
+      targetPhi=0.9;
+    }
+  });
+});
+
+// Stats
+const totalVal=DATA.filter(d=>d.nome).reduce((s,d)=>s+d.qty*d.vunit,0);
+const totalPos=DATA.filter(d=>d.nome).length;
+const totalCrit=DATA.filter(d=>{
+  if(!d.nome) return false;
+  const maxV=DATA.reduce((m,x)=>Math.max(m,x.qty*x.vunit),0);
+  const maxG=DATA.reduce((m,x)=>Math.max(m,x.giro),0);
+  return (d.qty*d.vunit)/maxV>0.5 && d.giro/maxG<0.35;
+}).length;
+document.getElementById("tot-val").textContent=fmtBRL(totalVal);
+document.getElementById("tot-pos").textContent=totalPos;
+document.getElementById("tot-crit").textContent=totalCrit;
+
+// Animate
+function animate(){
+  requestAnimationFrame(animate);
+  theta+=(targetTheta-theta)*0.08;
+  phi+=(targetPhi-phi)*0.08;
+  radius+=(targetRadius-radius)*0.08;
+  currentLookAt.lerp(targetLookAt,0.08);
+
+  camera.position.x=currentLookAt.x+radius*Math.sin(phi)*Math.sin(theta);
+  camera.position.y=currentLookAt.y+radius*Math.cos(phi);
+  camera.position.z=currentLookAt.z+radius*Math.sin(phi)*Math.cos(theta);
+  camera.lookAt(currentLookAt);
+
+  renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
+</body>
+</html>
