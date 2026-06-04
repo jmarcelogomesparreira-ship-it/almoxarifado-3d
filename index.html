@@ -2,373 +2,384 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Almoxarifado 3D — Usina Coruripe</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#080c18;font-family:'Segoe UI',sans-serif;overflow:hidden;color:#fff;}
-#canvas-container{position:fixed;inset:0;}
-#header{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(8,12,24,0.97);border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 16px;gap:0;z-index:20;}
-#header h1{font-size:12px;font-weight:700;letter-spacing:1.2px;color:#e2e8f0;white-space:nowrap;margin-right:16px;}
-.hdiv{width:1px;height:28px;background:rgba(255,255,255,0.08);margin:0 14px;}
-.kpi{display:flex;flex-direction:column;align-items:center;min-width:120px;}
-.kpi-l{font-size:9px;font-weight:600;letter-spacing:.7px;color:#4a5568;text-transform:uppercase;}
-.kpi-v{font-size:17px;font-weight:700;color:#90cdf4;line-height:1.15;transition:color .3s;}
-.kpi-v.red{color:#fc8181!important;}
-.kpi-v.yellow{color:#f6e05e!important;}
-.kpi-v.green{color:#68d391!important;}
-.kpi-v.blue{color:#76e4f7!important;}
-#kpi-mode{font-size:10px;color:#2d3748;margin-left:auto;white-space:nowrap;}
-#filters{position:fixed;top:62px;left:12px;background:rgba(10,14,26,0.96);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;z-index:20;min-width:178px;}
-#filters h3{font-size:9px;font-weight:700;letter-spacing:1px;color:#2d3748;text-transform:uppercase;margin-bottom:8px;}
-.fb{display:block;width:100%;text-align:left;background:transparent;border:1px solid rgba(255,255,255,0.06);border-radius:6px;color:#718096;font-size:11px;padding:6px 9px;margin-bottom:4px;cursor:pointer;transition:all .18s;}
-.fb:hover{background:rgba(144,205,244,0.07);color:#90cdf4;}
-.fb.active{background:rgba(144,205,244,0.12);border-color:rgba(144,205,244,0.28);color:#90cdf4;font-weight:600;}
-#legend{position:fixed;bottom:12px;left:12px;background:rgba(10,14,26,0.96);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:11px 13px;z-index:20;}
-#legend h3{font-size:9px;font-weight:700;letter-spacing:1px;color:#2d3748;text-transform:uppercase;margin-bottom:7px;}
-.li{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:#718096;}
-.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-#panel{position:fixed;top:62px;right:12px;width:265px;background:rgba(10,14,26,0.97);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:15px;z-index:20;opacity:0;pointer-events:none;transform:translateX(8px);transition:all .28s;}
-#panel.show{opacity:1;pointer-events:all;transform:translateX(0);}
-#pc{position:absolute;top:9px;right:9px;background:none;border:none;color:#2d3748;font-size:15px;cursor:pointer;padding:2px 5px;}
-#pc:hover{color:#718096;}
-#pn{font-size:13px;font-weight:600;color:#e2e8f0;line-height:1.3;margin-bottom:2px;padding-right:18px;}
-#pp{font-size:10px;color:#2d3748;margin-bottom:10px;}
-.gb-wrap{margin-bottom:10px;}
-.gb-label{font-size:10px;color:#4a5568;margin-bottom:4px;}
-.gb-bg{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
-.gb-fill{height:100%;border-radius:3px;transition:width .5s,background .4s;}
-.ps{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
-.ps:last-child{border-bottom:none;}
-.psl{font-size:11px;color:#4a5568;}
-.psv{font-size:11px;font-weight:600;color:#a0aec0;}
-.psv.red{color:#fc8181!important;}
-.psv.yellow{color:#f6e05e!important;}
-.psv.green{color:#68d391!important;}
-.psv.blue{color:#76e4f7!important;}
-#reset-btn{position:fixed;top:62px;right:290px;background:rgba(10,14,26,0.96);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:#4a5568;font-size:11px;padding:7px 12px;cursor:pointer;z-index:20;transition:all .18s;}
-#reset-btn:hover{color:#90cdf4;border-color:rgba(144,205,244,0.3);}
-#nav-hint{position:fixed;bottom:12px;right:14px;font-size:10px;color:#1a202c;pointer-events:none;line-height:1.9;text-align:right;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060a14;font-family:'Segoe UI',sans-serif;overflow:hidden;color:#fff}
+#c3d{position:fixed;inset:0}
+#hd{position:fixed;top:0;left:0;right:0;height:50px;background:rgba(6,10,20,.97);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;padding:0 16px;gap:0;z-index:20}
+#hd h1{font-size:12px;font-weight:700;letter-spacing:1px;color:#e2e8f0;white-space:nowrap;margin-right:14px}
+.hd{width:1px;height:26px;background:rgba(255,255,255,.08);margin:0 12px}
+.kp{display:flex;flex-direction:column;align-items:center;min-width:115px}
+.kl{font-size:9px;font-weight:600;letter-spacing:.7px;color:#4a5568;text-transform:uppercase}
+.kv{font-size:16px;font-weight:700;color:#90cdf4;line-height:1.2;transition:color .3s}
+.kv.r{color:#fc8181!important}.kv.y{color:#f6e05e!important}.kv.g{color:#68d391!important}.kv.b{color:#76e4f7!important}
+#km{font-size:10px;color:#2d3748;margin-left:auto;white-space:nowrap}
+#fl{position:fixed;top:62px;left:12px;background:rgba(8,12,22,.96);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px;z-index:20;min-width:176px}
+#fl h3{font-size:9px;font-weight:700;letter-spacing:1px;color:#2d3748;text-transform:uppercase;margin-bottom:8px}
+.fb{display:block;width:100%;text-align:left;background:transparent;border:1px solid rgba(255,255,255,.06);border-radius:6px;color:#718096;font-size:11px;padding:6px 9px;margin-bottom:4px;cursor:pointer;transition:all .18s}
+.fb:hover{background:rgba(144,205,244,.07);color:#90cdf4}
+.fb.on{background:rgba(144,205,244,.12);border-color:rgba(144,205,244,.28);color:#90cdf4;font-weight:600}
+#lg{position:fixed;bottom:12px;left:12px;background:rgba(8,12,22,.96);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:11px 13px;z-index:20}
+#lg h3{font-size:9px;font-weight:700;letter-spacing:1px;color:#2d3748;text-transform:uppercase;margin-bottom:7px}
+.li{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:#718096}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+#pn{position:fixed;top:62px;right:12px;width:262px;background:rgba(8,12,22,.97);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:15px;z-index:20;opacity:0;pointer-events:none;transform:translateX(8px);transition:all .25s}
+#pn.on{opacity:1;pointer-events:all;transform:translateX(0)}
+#px{position:absolute;top:9px;right:9px;background:none;border:none;color:#2d3748;font-size:15px;cursor:pointer;padding:2px 5px}
+#px:hover{color:#718096}
+#pnm{font-size:13px;font-weight:600;color:#e2e8f0;line-height:1.3;margin-bottom:2px;padding-right:18px}
+#pps{font-size:10px;color:#2d3748;margin-bottom:10px}
+.gb{margin-bottom:10px}
+.gbl{font-size:10px;color:#4a5568;margin-bottom:4px}
+.gbb{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.gbf{height:100%;border-radius:3px;transition:width .5s,background .4s}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pr:last-child{border-bottom:none}
+.prl{font-size:11px;color:#4a5568}
+.prv{font-size:11px;font-weight:600;color:#a0aec0}
+.prv.r{color:#fc8181!important}.prv.y{color:#f6e05e!important}.prv.g{color:#68d391!important}.prv.b{color:#76e4f7!important}
+#rb{position:fixed;top:62px;right:286px;background:rgba(8,12,22,.96);border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#4a5568;font-size:11px;padding:7px 12px;cursor:pointer;z-index:20;transition:all .18s}
+#rb:hover{color:#90cdf4;border-color:rgba(144,205,244,.3)}
+#nh{position:fixed;bottom:12px;right:14px;font-size:10px;color:#1a202c;pointer-events:none;line-height:1.9;text-align:right}
 </style>
 </head>
 <body>
-<div id="canvas-container"></div>
-<div id="header">
+<div id="c3d"></div>
+<div id="hd">
   <h1>ALMOXARIFADO 3D — USINA CORURIPE</h1>
-  <div class="hdiv"></div>
-  <div class="kpi"><span class="kpi-l">Total imobilizado</span><span class="kpi-v" id="kv1">—</span></div>
-  <div class="hdiv"></div>
-  <div class="kpi"><span class="kpi-l">Posições / Item</span><span class="kpi-v" id="kv2">—</span></div>
-  <div class="hdiv"></div>
-  <div class="kpi"><span class="kpi-l">Críticos / Status</span><span class="kpi-v red" id="kv3">—</span></div>
-  <div class="hdiv"></div>
-  <div class="kpi"><span class="kpi-l">Giro médio / Giro</span><span class="kpi-v green" id="kv4">—</span></div>
-  <span id="kpi-mode">Clique numa posição para detalhar</span>
+  <div class="hd"></div>
+  <div class="kp"><span class="kl">Total imobilizado</span><span class="kv" id="k1">—</span></div>
+  <div class="hd"></div>
+  <div class="kp"><span class="kl">Posicoes / Item</span><span class="kv" id="k2">—</span></div>
+  <div class="hd"></div>
+  <div class="kp"><span class="kl">Criticos / Status</span><span class="kv r" id="k3">—</span></div>
+  <div class="hd"></div>
+  <div class="kp"><span class="kl">Giro medio / Giro</span><span class="kv g" id="k4">—</span></div>
+  <span id="km">Clique numa posicao para detalhar</span>
 </div>
-<div id="filters">
+<div id="fl">
   <h3>Corredor</h3>
-  <button class="fb active" data-c="all">Todos os corredores</button>
-  <button class="fb" data-c="A">A — Agrícola / Frotas</button>
-  <button class="fb" data-c="B">B — Elétrica</button>
+  <button class="fb on" data-c="all">Todos os corredores</button>
+  <button class="fb" data-c="A">A — Agricola / Frotas</button>
+  <button class="fb" data-c="B">B — Eletrica</button>
   <button class="fb" data-c="C">C — EPI + Limpeza</button>
   <button class="fb" data-c="D">D — Industrial</button>
 </div>
-<div id="legend">
+<div id="lg">
   <h3>Heatmap</h3>
   <div class="li"><div class="ld" style="background:#c53030"></div>Alto valor + baixo giro</div>
   <div class="li"><div class="ld" style="background:#b7791f"></div>Alto valor + alto giro</div>
   <div class="li"><div class="ld" style="background:#276749"></div>Baixo valor + alto giro</div>
   <div class="li"><div class="ld" style="background:#2b6cb0"></div>Baixo valor + baixo giro</div>
-  <div class="li"><div class="ld" style="background:#0f1c2e;border:1px solid #1a2d42"></div>Posição vazia</div>
+  <div class="li"><div class="ld" style="background:#0f1c2e;border:1px solid #1a2d42"></div>Posicao vazia</div>
 </div>
-<button id="reset-btn" onclick="resetCam()">↺ Reset câmera</button>
-<div id="panel">
-  <button id="pc" onclick="closePanel()">×</button>
-  <div id="pn">—</div>
-  <div id="pp">—</div>
-  <div class="gb-wrap"><div class="gb-label" id="gb-lbl">Giro</div><div class="gb-bg"><div class="gb-fill" id="gb-fill"></div></div></div>
-  <div class="ps"><span class="psl">Código SAP</span><span class="psv" id="p-cod">—</span></div>
-  <div class="ps"><span class="psl">Quantidade</span><span class="psv" id="p-qty">—</span></div>
-  <div class="ps"><span class="psl">Valor unitário</span><span class="psv" id="p-vu">—</span></div>
-  <div class="ps"><span class="psl">Valor total</span><span class="psv" id="p-vt">—</span></div>
-  <div class="ps"><span class="psl">Giro mensal</span><span class="psv" id="p-gi">—</span></div>
-  <div class="ps"><span class="psl">Meses sem saída</span><span class="psv" id="p-ms">—</span></div>
-  <div class="ps"><span class="psl">Última saída</span><span class="psv" id="p-us">—</span></div>
-  <div class="ps"><span class="psl">Status</span><span class="psv" id="p-st">—</span></div>
+<button id="rb" onclick="resetCam()">&#8635; Reset camera</button>
+<div id="pn">
+  <button id="px" onclick="closePanel()">&#215;</button>
+  <div id="pnm">—</div>
+  <div id="pps">—</div>
+  <div class="gb"><div class="gbl" id="gbl">Giro</div><div class="gbb"><div class="gbf" id="gbf"></div></div></div>
+  <div class="pr"><span class="prl">Codigo SAP</span><span class="prv" id="pcod">—</span></div>
+  <div class="pr"><span class="prl">Quantidade</span><span class="prv" id="pqty">—</span></div>
+  <div class="pr"><span class="prl">Valor unitario</span><span class="prv" id="pvu">—</span></div>
+  <div class="pr"><span class="prl">Valor total</span><span class="prv" id="pvt">—</span></div>
+  <div class="pr"><span class="prl">Giro mensal</span><span class="prv" id="pgi">—</span></div>
+  <div class="pr"><span class="prl">Meses sem saida</span><span class="prv" id="pms">—</span></div>
+  <div class="pr"><span class="prl">Ultima saida</span><span class="prv" id="pus">—</span></div>
+  <div class="pr"><span class="prl">Status</span><span class="prv" id="pst">—</span></div>
 </div>
-<div id="nav-hint">Rotacionar: botão esquerdo<br>Mover: botão direito<br>Zoom: scroll</div>
+<div id="nh">Rotacionar: botao esquerdo<br>Mover: botao direito<br>Zoom: scroll</div>
+
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script>
-const DATA=[
-  {pos:"A-01-P1",nome:"Filtro de óleo colheitadeira",cod:"10023401",corredor:"A",qty:8,vunit:187.50,giro:3.2,saida:"12/05/2025",grupo:"Agrícola"},
-  {pos:"A-01-P2",nome:"Correia dentada trator",cod:"10023402",corredor:"A",qty:12,vunit:342.00,giro:2.1,saida:"03/04/2025",grupo:"Agrícola"},
-  {pos:"A-01-P3",nome:"Rolamento roda caminhão",cod:"10023403",corredor:"A",qty:6,vunit:890.00,giro:0.8,saida:"10/01/2025",grupo:"Agrícola"},
-  {pos:"A-01-P4",nome:"Kit vedação bomba hidráulica",cod:"10023404",corredor:"A",qty:15,vunit:145.00,giro:4.5,saida:"20/05/2025",grupo:"Agrícola"},
-  {pos:"A-02-P1",nome:"Pastilha de freio caminhão",cod:"10023405",corredor:"A",qty:24,vunit:210.00,giro:5.0,saida:"28/05/2025",grupo:"Frotas"},
-  {pos:"A-02-P2",nome:"Filtro combustível colheitadeira",cod:"10023406",corredor:"A",qty:10,vunit:98.00,giro:3.8,saida:"15/05/2025",grupo:"Agrícola"},
-  {pos:"A-02-P3",nome:"Amortecedor trator MF 297",cod:"10023407",corredor:"A",qty:4,vunit:1240.00,giro:0.4,saida:"15/11/2024",grupo:"Agrícola"},
-  {pos:"A-02-P4",nome:"Correia alternador caminhão",cod:"10023408",corredor:"A",qty:20,vunit:67.50,giro:6.2,saida:"30/05/2025",grupo:"Frotas"},
-  {pos:"A-03-P1",nome:"Vela aquecedora trator",cod:"10023409",corredor:"A",qty:16,vunit:54.00,giro:2.5,saida:"08/04/2025",grupo:"Agrícola"},
-  {pos:"A-03-P2",nome:"Sensor rotação colheitadeira",cod:"10023410",corredor:"A",qty:3,vunit:2100.00,giro:0.3,saida:"05/10/2024",grupo:"Agrícola"},
-  {pos:"A-03-P3",nome:"Filtro ar motor Case IH",cod:"10023411",corredor:"A",qty:9,vunit:178.00,giro:3.1,saida:"22/05/2025",grupo:"Agrícola"},
-  {pos:"A-03-P4",nome:"Pneu traseiro trator 18.4-34",cod:"10023412",corredor:"A",qty:2,vunit:3800.00,giro:0.2,saida:"20/08/2024",grupo:"Agrícola"},
-  {pos:"A-04-P1",nome:"Óleo hidráulico ISO 46 (20L)",cod:"10023413",corredor:"A",qty:18,vunit:185.00,giro:7.0,saida:"31/05/2025",grupo:"Frotas"},
-  {pos:"A-04-P2",nome:"Terminal bateria caminhão",cod:"10023414",corredor:"A",qty:30,vunit:28.00,giro:4.2,saida:"18/05/2025",grupo:"Frotas"},
-  {pos:"A-04-P3",nome:"Bomba d agua trator JD 5078E",cod:"10023415",corredor:"A",qty:2,vunit:1650.00,giro:0.5,saida:"14/02/2025",grupo:"Agrícola"},
-  {pos:"A-04-P4",nome:"",cod:"",corredor:"A",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"A-05-P1",nome:"Disco de corte base cortadora",cod:"10023416",corredor:"A",qty:40,vunit:95.00,giro:8.5,saida:"01/06/2025",grupo:"Agrícola"},
-  {pos:"A-05-P2",nome:"Rolamento agulha colheitadeira",cod:"10023417",corredor:"A",qty:5,vunit:420.00,giro:1.2,saida:"10/03/2025",grupo:"Agrícola"},
-  {pos:"A-05-P3",nome:"Filtro hidráulico retorno",cod:"10023418",corredor:"A",qty:12,vunit:132.00,giro:3.6,saida:"25/05/2025",grupo:"Agrícola"},
-  {pos:"A-05-P4",nome:"",cod:"",corredor:"A",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"B-01-P1",nome:"Cabo PP 4x6mm (rolo 100m)",cod:"20011201",corredor:"B",qty:3,vunit:1870.00,giro:0.6,saida:"12/02/2025",grupo:"Elétrica"},
-  {pos:"B-01-P2",nome:"Disjuntor tripolar 100A",cod:"20011202",corredor:"B",qty:8,vunit:245.00,giro:1.4,saida:"28/03/2025",grupo:"Elétrica"},
-  {pos:"B-01-P3",nome:"Contator 3RT 40A Siemens",cod:"20011203",corredor:"B",qty:6,vunit:380.00,giro:2.0,saida:"10/04/2025",grupo:"Elétrica"},
-  {pos:"B-01-P4",nome:"Inversor de frequência 5cv",cod:"20011204",corredor:"B",qty:2,vunit:3200.00,giro:0.4,saida:"05/11/2024",grupo:"Elétrica"},
-  {pos:"B-02-P1",nome:"Relé térmico 12-18A",cod:"20011205",corredor:"B",qty:12,vunit:98.00,giro:2.8,saida:"20/05/2025",grupo:"Elétrica"},
-  {pos:"B-02-P2",nome:"Transformador 10 KVA 380/220V",cod:"20011206",corredor:"B",qty:1,vunit:4800.00,giro:0.1,saida:"10/07/2024",grupo:"Elétrica"},
-  {pos:"B-02-P3",nome:"Lampada LED industrial 150W",cod:"20011207",corredor:"B",qty:20,vunit:87.00,giro:3.5,saida:"18/05/2025",grupo:"Elétrica"},
-  {pos:"B-02-P4",nome:"Fusivel NH1 160A",cod:"20011208",corredor:"B",qty:15,vunit:42.00,giro:4.0,saida:"26/05/2025",grupo:"Elétrica"},
-  {pos:"B-03-P1",nome:"Cabo de comando 12x1,5mm",cod:"20011209",corredor:"B",qty:2,vunit:1240.00,giro:0.7,saida:"08/01/2025",grupo:"Elétrica"},
-  {pos:"B-03-P2",nome:"Sensor indutivo M18 NPN",cod:"20011210",corredor:"B",qty:10,vunit:165.00,giro:2.2,saida:"15/04/2025",grupo:"Elétrica"},
-  {pos:"B-03-P3",nome:"Chave fim de curso metal",cod:"20011211",corredor:"B",qty:8,vunit:210.00,giro:1.8,saida:"22/03/2025",grupo:"Elétrica"},
-  {pos:"B-03-P4",nome:"",cod:"",corredor:"B",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"B-04-P1",nome:"Borne DIN 4mm (cx 50un)",cod:"20011212",corredor:"B",qty:6,vunit:145.00,giro:3.0,saida:"28/05/2025",grupo:"Elétrica"},
-  {pos:"B-04-P2",nome:"Inversor 15cv Schneider ATV310",cod:"20011213",corredor:"B",qty:1,vunit:6800.00,giro:0.2,saida:"15/09/2024",grupo:"Elétrica"},
-  {pos:"B-04-P3",nome:"Fita isolante alta tensao (cx)",cod:"20011214",corredor:"B",qty:24,vunit:32.00,giro:5.5,saida:"01/06/2025",grupo:"Elétrica"},
-  {pos:"B-04-P4",nome:"Luva de conexao isolada (cx)",cod:"20011215",corredor:"B",qty:18,vunit:28.50,giro:4.8,saida:"30/05/2025",grupo:"Elétrica"},
-  {pos:"B-05-P1",nome:"Motor eletrico 5cv 4 polos",cod:"20011216",corredor:"B",qty:2,vunit:2100.00,giro:0.5,saida:"20/02/2025",grupo:"Elétrica"},
-  {pos:"B-05-P2",nome:"Disjuntor motor DM-1 25A",cod:"20011217",corredor:"B",qty:10,vunit:185.00,giro:2.4,saida:"12/05/2025",grupo:"Elétrica"},
-  {pos:"B-05-P3",nome:"",cod:"",corredor:"B",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"B-05-P4",nome:"Cabo PP 2x2,5mm (rolo 100m)",cod:"20011218",corredor:"B",qty:4,vunit:680.00,giro:1.5,saida:"08/04/2025",grupo:"Elétrica"},
-  {pos:"C-01-P1",nome:"Capacete ABA total Vonder",cod:"30005601",corredor:"C",qty:30,vunit:48.00,giro:6.0,saida:"01/06/2025",grupo:"EPI"},
-  {pos:"C-01-P2",nome:"Luva vaqueta CA 10578",cod:"30005602",corredor:"C",qty:60,vunit:22.50,giro:8.0,saida:"31/05/2025",grupo:"EPI"},
-  {pos:"C-01-P3",nome:"Bota PVC cano longo 44",cod:"30005603",corredor:"C",qty:15,vunit:68.00,giro:3.2,saida:"22/05/2025",grupo:"EPI"},
-  {pos:"C-01-P4",nome:"Oculos proteção incolor",cod:"30005604",corredor:"C",qty:50,vunit:18.00,giro:7.5,saida:"01/06/2025",grupo:"EPI"},
-  {pos:"C-02-P1",nome:"Protetor auricular espuma (cx)",cod:"30005605",corredor:"C",qty:10,vunit:85.00,giro:5.0,saida:"28/05/2025",grupo:"EPI"},
-  {pos:"C-02-P2",nome:"Mascara semi-facial PFF2",cod:"30005606",corredor:"C",qty:8,vunit:42.00,giro:4.5,saida:"26/05/2025",grupo:"EPI"},
-  {pos:"C-02-P3",nome:"Cinto segurança talabarte duplo",cod:"30005607",corredor:"C",qty:6,vunit:320.00,giro:1.0,saida:"10/03/2025",grupo:"EPI"},
-  {pos:"C-02-P4",nome:"Protetor facial face shield",cod:"30005608",corredor:"C",qty:12,vunit:95.00,giro:2.8,saida:"15/04/2025",grupo:"EPI"},
-  {pos:"C-03-P1",nome:"Detergente industrial 5L",cod:"30005609",corredor:"C",qty:24,vunit:38.00,giro:6.5,saida:"30/05/2025",grupo:"Limpeza"},
-  {pos:"C-03-P2",nome:"Alcool isopropilico 99% 1L",cod:"30005610",corredor:"C",qty:18,vunit:28.00,giro:5.8,saida:"01/06/2025",grupo:"Limpeza"},
-  {pos:"C-03-P3",nome:"Desincrustante acido 5L",cod:"30005611",corredor:"C",qty:10,vunit:92.00,giro:2.0,saida:"08/04/2025",grupo:"Limpeza"},
-  {pos:"C-03-P4",nome:"Luva nitrilica descartavel (cx)",cod:"30005612",corredor:"C",qty:20,vunit:65.00,giro:7.0,saida:"31/05/2025",grupo:"EPI"},
-  {pos:"C-04-P1",nome:"Pano absorvente industrial (pc)",cod:"30005613",corredor:"C",qty:15,vunit:55.00,giro:4.2,saida:"28/05/2025",grupo:"Limpeza"},
-  {pos:"C-04-P2",nome:"Sabao liquido industrial 5L",cod:"30005614",corredor:"C",qty:12,vunit:48.00,giro:5.5,saida:"01/06/2025",grupo:"Limpeza"},
-  {pos:"C-04-P3",nome:"Avental PVC quimico",cod:"30005615",corredor:"C",qty:8,vunit:145.00,giro:1.5,saida:"20/03/2025",grupo:"EPI"},
-  {pos:"C-04-P4",nome:"",cod:"",corredor:"C",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"C-05-P1",nome:"Hipoclorito sodio 12% 20L",cod:"30005616",corredor:"C",qty:6,vunit:110.00,giro:3.0,saida:"15/05/2025",grupo:"Limpeza"},
-  {pos:"C-05-P2",nome:"Vassoura industrial 60cm",cod:"30005617",corredor:"C",qty:10,vunit:42.00,giro:2.5,saida:"10/04/2025",grupo:"Limpeza"},
-  {pos:"C-05-P3",nome:"",cod:"",corredor:"C",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"C-05-P4",nome:"Respirador semifacial VOC",cod:"30005618",corredor:"C",qty:4,vunit:285.00,giro:0.8,saida:"05/02/2025",grupo:"EPI"},
-  {pos:"D-01-P1",nome:"Rolamento esferico 6205-2RS",cod:"40018901",corredor:"D",qty:20,vunit:48.00,giro:5.5,saida:"30/05/2025",grupo:"Industrial"},
-  {pos:"D-01-P2",nome:"Retentor 40x62x10 NBR",cod:"40018902",corredor:"D",qty:15,vunit:32.00,giro:4.0,saida:"22/05/2025",grupo:"Industrial"},
-  {pos:"D-01-P3",nome:"Valvula gaveta 3pol inox",cod:"40018903",corredor:"D",qty:4,vunit:1250.00,giro:0.6,saida:"18/02/2025",grupo:"Industrial"},
-  {pos:"D-01-P4",nome:"Bomba centrifuga 2pol 3cv",cod:"40018904",corredor:"D",qty:2,vunit:2800.00,giro:0.3,saida:"10/11/2024",grupo:"Industrial"},
-  {pos:"D-02-P1",nome:"Correia transportadora B-80",cod:"40018905",corredor:"D",qty:8,vunit:680.00,giro:1.2,saida:"08/03/2025",grupo:"Industrial"},
-  {pos:"D-02-P2",nome:"Gaxeta grafitada DN50",cod:"40018906",corredor:"D",qty:30,vunit:18.50,giro:6.0,saida:"01/06/2025",grupo:"Industrial"},
-  {pos:"D-02-P3",nome:"Redutor de velocidade 1:20",cod:"40018907",corredor:"D",qty:2,vunit:4200.00,giro:0.2,saida:"05/08/2024",grupo:"Industrial"},
-  {pos:"D-02-P4",nome:"Mancal fixo UCP 205",cod:"40018908",corredor:"D",qty:10,vunit:125.00,giro:2.5,saida:"15/04/2025",grupo:"Industrial"},
-  {pos:"D-03-P1",nome:"Tubo inox 316L 1pol (6m)",cod:"40018909",corredor:"D",qty:5,vunit:890.00,giro:0.8,saida:"12/01/2025",grupo:"Industrial"},
-  {pos:"D-03-P2",nome:"Valvula esfera 2pol PVC",cod:"40018910",corredor:"D",qty:8,vunit:185.00,giro:2.0,saida:"28/04/2025",grupo:"Industrial"},
-  {pos:"D-03-P3",nome:"Rolamento rolete 22208 EK",cod:"40018911",corredor:"D",qty:6,vunit:420.00,giro:1.5,saida:"20/03/2025",grupo:"Industrial"},
-  {pos:"D-03-P4",nome:"Acoplamento elastico Falk",cod:"40018912",corredor:"D",qty:4,vunit:780.00,giro:0.7,saida:"15/01/2025",grupo:"Industrial"},
-  {pos:"D-04-P1",nome:"O-ring kit sortido (cx 200pc)",cod:"40018913",corredor:"D",qty:10,vunit:95.00,giro:5.0,saida:"28/05/2025",grupo:"Industrial"},
-  {pos:"D-04-P2",nome:"Grelha de retencao 150x150",cod:"40018914",corredor:"D",qty:6,vunit:340.00,giro:1.0,saida:"10/02/2025",grupo:"Industrial"},
-  {pos:"D-04-P3",nome:"Sensor pressao 4-20mA 0-10bar",cod:"40018915",corredor:"D",qty:3,vunit:1850.00,giro:0.5,saida:"20/01/2025",grupo:"Industrial"},
-  {pos:"D-04-P4",nome:"",cod:"",corredor:"D",qty:0,vunit:0,giro:0,saida:"",grupo:""},
-  {pos:"D-05-P1",nome:"Correia V SPB-2500",cod:"40018916",corredor:"D",qty:12,vunit:145.00,giro:3.5,saida:"20/05/2025",grupo:"Industrial"},
-  {pos:"D-05-P2",nome:"Flange cega DN80 PN10",cod:"40018917",corredor:"D",qty:8,vunit:210.00,giro:1.8,saida:"18/03/2025",grupo:"Industrial"},
-  {pos:"D-05-P3",nome:"Parafuso sextavado M20x80 (cx)",cod:"40018918",corredor:"D",qty:5,vunit:185.00,giro:4.2,saida:"26/05/2025",grupo:"Industrial"},
-  {pos:"D-05-P4",nome:"Lubrificante grease NLGI 2 kg",cod:"40018919",corredor:"D",qty:20,vunit:68.00,giro:6.0,saida:"01/06/2025",grupo:"Industrial"},
+var DATA=[
+  {p:"A-01-P1",n:"Filtro oleo colheitadeira",c:"10023401",corr:"A",q:8,v:187.5,g:3.2,s:"12/05/2025",gr:"Agricola"},
+  {p:"A-01-P2",n:"Correia dentada trator",c:"10023402",corr:"A",q:12,v:342,g:2.1,s:"03/04/2025",gr:"Agricola"},
+  {p:"A-01-P3",n:"Rolamento roda caminhao",c:"10023403",corr:"A",q:6,v:890,g:0.8,s:"10/01/2025",gr:"Agricola"},
+  {p:"A-01-P4",n:"Kit vedacao bomba hidraulica",c:"10023404",corr:"A",q:15,v:145,g:4.5,s:"20/05/2025",gr:"Agricola"},
+  {p:"A-02-P1",n:"Pastilha de freio caminhao",c:"10023405",corr:"A",q:24,v:210,g:5.0,s:"28/05/2025",gr:"Frotas"},
+  {p:"A-02-P2",n:"Filtro combustivel colheitadeira",c:"10023406",corr:"A",q:10,v:98,g:3.8,s:"15/05/2025",gr:"Agricola"},
+  {p:"A-02-P3",n:"Amortecedor trator MF 297",c:"10023407",corr:"A",q:4,v:1240,g:0.4,s:"15/11/2024",gr:"Agricola"},
+  {p:"A-02-P4",n:"Correia alternador caminhao",c:"10023408",corr:"A",q:20,v:67.5,g:6.2,s:"30/05/2025",gr:"Frotas"},
+  {p:"A-03-P1",n:"Vela aquecedora trator",c:"10023409",corr:"A",q:16,v:54,g:2.5,s:"08/04/2025",gr:"Agricola"},
+  {p:"A-03-P2",n:"Sensor rotacao colheitadeira",c:"10023410",corr:"A",q:3,v:2100,g:0.3,s:"05/10/2024",gr:"Agricola"},
+  {p:"A-03-P3",n:"Filtro ar motor Case IH",c:"10023411",corr:"A",q:9,v:178,g:3.1,s:"22/05/2025",gr:"Agricola"},
+  {p:"A-03-P4",n:"Pneu traseiro trator 18.4-34",c:"10023412",corr:"A",q:2,v:3800,g:0.2,s:"20/08/2024",gr:"Agricola"},
+  {p:"A-04-P1",n:"Oleo hidraulico ISO 46 20L",c:"10023413",corr:"A",q:18,v:185,g:7.0,s:"31/05/2025",gr:"Frotas"},
+  {p:"A-04-P2",n:"Terminal bateria caminhao",c:"10023414",corr:"A",q:30,v:28,g:4.2,s:"18/05/2025",gr:"Frotas"},
+  {p:"A-04-P3",n:"Bomba dagua trator JD 5078E",c:"10023415",corr:"A",q:2,v:1650,g:0.5,s:"14/02/2025",gr:"Agricola"},
+  {p:"A-04-P4",n:"",c:"",corr:"A",q:0,v:0,g:0,s:"",gr:""},
+  {p:"A-05-P1",n:"Disco corte base cortadora",c:"10023416",corr:"A",q:40,v:95,g:8.5,s:"01/06/2025",gr:"Agricola"},
+  {p:"A-05-P2",n:"Rolamento agulha colheitadeira",c:"10023417",corr:"A",q:5,v:420,g:1.2,s:"10/03/2025",gr:"Agricola"},
+  {p:"A-05-P3",n:"Filtro hidraulico retorno",c:"10023418",corr:"A",q:12,v:132,g:3.6,s:"25/05/2025",gr:"Agricola"},
+  {p:"A-05-P4",n:"",c:"",corr:"A",q:0,v:0,g:0,s:"",gr:""},
+  {p:"B-01-P1",n:"Cabo PP 4x6mm rolo 100m",c:"20011201",corr:"B",q:3,v:1870,g:0.6,s:"12/02/2025",gr:"Eletrica"},
+  {p:"B-01-P2",n:"Disjuntor tripolar 100A",c:"20011202",corr:"B",q:8,v:245,g:1.4,s:"28/03/2025",gr:"Eletrica"},
+  {p:"B-01-P3",n:"Contator 3RT 40A Siemens",c:"20011203",corr:"B",q:6,v:380,g:2.0,s:"10/04/2025",gr:"Eletrica"},
+  {p:"B-01-P4",n:"Inversor de frequencia 5cv",c:"20011204",corr:"B",q:2,v:3200,g:0.4,s:"05/11/2024",gr:"Eletrica"},
+  {p:"B-02-P1",n:"Rele termico 12-18A",c:"20011205",corr:"B",q:12,v:98,g:2.8,s:"20/05/2025",gr:"Eletrica"},
+  {p:"B-02-P2",n:"Transformador 10KVA 380/220V",c:"20011206",corr:"B",q:1,v:4800,g:0.1,s:"10/07/2024",gr:"Eletrica"},
+  {p:"B-02-P3",n:"Lampada LED industrial 150W",c:"20011207",corr:"B",q:20,v:87,g:3.5,s:"18/05/2025",gr:"Eletrica"},
+  {p:"B-02-P4",n:"Fusivel NH1 160A",c:"20011208",corr:"B",q:15,v:42,g:4.0,s:"26/05/2025",gr:"Eletrica"},
+  {p:"B-03-P1",n:"Cabo comando 12x1.5mm",c:"20011209",corr:"B",q:2,v:1240,g:0.7,s:"08/01/2025",gr:"Eletrica"},
+  {p:"B-03-P2",n:"Sensor indutivo M18 NPN",c:"20011210",corr:"B",q:10,v:165,g:2.2,s:"15/04/2025",gr:"Eletrica"},
+  {p:"B-03-P3",n:"Chave fim de curso metal",c:"20011211",corr:"B",q:8,v:210,g:1.8,s:"22/03/2025",gr:"Eletrica"},
+  {p:"B-03-P4",n:"",c:"",corr:"B",q:0,v:0,g:0,s:"",gr:""},
+  {p:"B-04-P1",n:"Borne DIN 4mm cx 50un",c:"20011212",corr:"B",q:6,v:145,g:3.0,s:"28/05/2025",gr:"Eletrica"},
+  {p:"B-04-P2",n:"Inversor 15cv Schneider ATV310",c:"20011213",corr:"B",q:1,v:6800,g:0.2,s:"15/09/2024",gr:"Eletrica"},
+  {p:"B-04-P3",n:"Fita isolante alta tensao cx",c:"20011214",corr:"B",q:24,v:32,g:5.5,s:"01/06/2025",gr:"Eletrica"},
+  {p:"B-04-P4",n:"Luva conexao isolada cx",c:"20011215",corr:"B",q:18,v:28.5,g:4.8,s:"30/05/2025",gr:"Eletrica"},
+  {p:"B-05-P1",n:"Motor eletrico 5cv 4 polos",c:"20011216",corr:"B",q:2,v:2100,g:0.5,s:"20/02/2025",gr:"Eletrica"},
+  {p:"B-05-P2",n:"Disjuntor motor DM-1 25A",c:"20011217",corr:"B",q:10,v:185,g:2.4,s:"12/05/2025",gr:"Eletrica"},
+  {p:"B-05-P3",n:"",c:"",corr:"B",q:0,v:0,g:0,s:"",gr:""},
+  {p:"B-05-P4",n:"Cabo PP 2x2.5mm rolo 100m",c:"20011218",corr:"B",q:4,v:680,g:1.5,s:"08/04/2025",gr:"Eletrica"},
+  {p:"C-01-P1",n:"Capacete ABA total Vonder",c:"30005601",corr:"C",q:30,v:48,g:6.0,s:"01/06/2025",gr:"EPI"},
+  {p:"C-01-P2",n:"Luva vaqueta CA 10578",c:"30005602",corr:"C",q:60,v:22.5,g:8.0,s:"31/05/2025",gr:"EPI"},
+  {p:"C-01-P3",n:"Bota PVC cano longo 44",c:"30005603",corr:"C",q:15,v:68,g:3.2,s:"22/05/2025",gr:"EPI"},
+  {p:"C-01-P4",n:"Oculos protecao incolor",c:"30005604",corr:"C",q:50,v:18,g:7.5,s:"01/06/2025",gr:"EPI"},
+  {p:"C-02-P1",n:"Protetor auricular espuma cx",c:"30005605",corr:"C",q:10,v:85,g:5.0,s:"28/05/2025",gr:"EPI"},
+  {p:"C-02-P2",n:"Mascara semi-facial PFF2",c:"30005606",corr:"C",q:8,v:42,g:4.5,s:"26/05/2025",gr:"EPI"},
+  {p:"C-02-P3",n:"Cinto seguranca talabarte duplo",c:"30005607",corr:"C",q:6,v:320,g:1.0,s:"10/03/2025",gr:"EPI"},
+  {p:"C-02-P4",n:"Protetor facial face shield",c:"30005608",corr:"C",q:12,v:95,g:2.8,s:"15/04/2025",gr:"EPI"},
+  {p:"C-03-P1",n:"Detergente industrial 5L",c:"30005609",corr:"C",q:24,v:38,g:6.5,s:"30/05/2025",gr:"Limpeza"},
+  {p:"C-03-P2",n:"Alcool isopropilico 99% 1L",c:"30005610",corr:"C",q:18,v:28,g:5.8,s:"01/06/2025",gr:"Limpeza"},
+  {p:"C-03-P3",n:"Desincrustante acido 5L",c:"30005611",corr:"C",q:10,v:92,g:2.0,s:"08/04/2025",gr:"Limpeza"},
+  {p:"C-03-P4",n:"Luva nitrilica descartavel cx",c:"30005612",corr:"C",q:20,v:65,g:7.0,s:"31/05/2025",gr:"EPI"},
+  {p:"C-04-P1",n:"Pano absorvente industrial pc",c:"30005613",corr:"C",q:15,v:55,g:4.2,s:"28/05/2025",gr:"Limpeza"},
+  {p:"C-04-P2",n:"Sabao liquido industrial 5L",c:"30005614",corr:"C",q:12,v:48,g:5.5,s:"01/06/2025",gr:"Limpeza"},
+  {p:"C-04-P3",n:"Avental PVC quimico",c:"30005615",corr:"C",q:8,v:145,g:1.5,s:"20/03/2025",gr:"EPI"},
+  {p:"C-04-P4",n:"",c:"",corr:"C",q:0,v:0,g:0,s:"",gr:""},
+  {p:"C-05-P1",n:"Hipoclorito sodio 12% 20L",c:"30005616",corr:"C",q:6,v:110,g:3.0,s:"15/05/2025",gr:"Limpeza"},
+  {p:"C-05-P2",n:"Vassoura industrial 60cm",c:"30005617",corr:"C",q:10,v:42,g:2.5,s:"10/04/2025",gr:"Limpeza"},
+  {p:"C-05-P3",n:"",c:"",corr:"C",q:0,v:0,g:0,s:"",gr:""},
+  {p:"C-05-P4",n:"Respirador semifacial VOC",c:"30005618",corr:"C",q:4,v:285,g:0.8,s:"05/02/2025",gr:"EPI"},
+  {p:"D-01-P1",n:"Rolamento esferico 6205-2RS",c:"40018901",corr:"D",q:20,v:48,g:5.5,s:"30/05/2025",gr:"Industrial"},
+  {p:"D-01-P2",n:"Retentor 40x62x10 NBR",c:"40018902",corr:"D",q:15,v:32,g:4.0,s:"22/05/2025",gr:"Industrial"},
+  {p:"D-01-P3",n:"Valvula gaveta 3pol inox",c:"40018903",corr:"D",q:4,v:1250,g:0.6,s:"18/02/2025",gr:"Industrial"},
+  {p:"D-01-P4",n:"Bomba centrifuga 2pol 3cv",c:"40018904",corr:"D",q:2,v:2800,g:0.3,s:"10/11/2024",gr:"Industrial"},
+  {p:"D-02-P1",n:"Correia transportadora B-80",c:"40018905",corr:"D",q:8,v:680,g:1.2,s:"08/03/2025",gr:"Industrial"},
+  {p:"D-02-P2",n:"Gaxeta grafitada DN50",c:"40018906",corr:"D",q:30,v:18.5,g:6.0,s:"01/06/2025",gr:"Industrial"},
+  {p:"D-02-P3",n:"Redutor de velocidade 1:20",c:"40018907",corr:"D",q:2,v:4200,g:0.2,s:"05/08/2024",gr:"Industrial"},
+  {p:"D-02-P4",n:"Mancal fixo UCP 205",c:"40018908",corr:"D",q:10,v:125,g:2.5,s:"15/04/2025",gr:"Industrial"},
+  {p:"D-03-P1",n:"Tubo inox 316L 1pol 6m",c:"40018909",corr:"D",q:5,v:890,g:0.8,s:"12/01/2025",gr:"Industrial"},
+  {p:"D-03-P2",n:"Valvula esfera 2pol PVC",c:"40018910",corr:"D",q:8,v:185,g:2.0,s:"28/04/2025",gr:"Industrial"},
+  {p:"D-03-P3",n:"Rolamento rolete 22208 EK",c:"40018911",corr:"D",q:6,v:420,g:1.5,s:"20/03/2025",gr:"Industrial"},
+  {p:"D-03-P4",n:"Acoplamento elastico Falk",c:"40018912",corr:"D",q:4,v:780,g:0.7,s:"15/01/2025",gr:"Industrial"},
+  {p:"D-04-P1",n:"O-ring kit sortido cx 200pc",c:"40018913",corr:"D",q:10,v:95,g:5.0,s:"28/05/2025",gr:"Industrial"},
+  {p:"D-04-P2",n:"Grelha de retencao 150x150",c:"40018914",corr:"D",q:6,v:340,g:1.0,s:"10/02/2025",gr:"Industrial"},
+  {p:"D-04-P3",n:"Sensor pressao 4-20mA 0-10bar",c:"40018915",corr:"D",q:3,v:1850,g:0.5,s:"20/01/2025",gr:"Industrial"},
+  {p:"D-04-P4",n:"",c:"",corr:"D",q:0,v:0,g:0,s:"",gr:""},
+  {p:"D-05-P1",n:"Correia V SPB-2500",c:"40018916",corr:"D",q:12,v:145,g:3.5,s:"20/05/2025",gr:"Industrial"},
+  {p:"D-05-P2",n:"Flange cega DN80 PN10",c:"40018917",corr:"D",q:8,v:210,g:1.8,s:"18/03/2025",gr:"Industrial"},
+  {p:"D-05-P3",n:"Parafuso sextavado M20x80 cx",c:"40018918",corr:"D",q:5,v:185,g:4.2,s:"26/05/2025",gr:"Industrial"},
+  {p:"D-05-P4",n:"Lubrificante grease NLGI 2 kg",c:"40018919",corr:"D",q:20,v:68,g:6.0,s:"01/06/2025",gr:"Industrial"}
 ];
 
-const maxV=DATA.reduce((m,x)=>Math.max(m,x.qty*x.vunit),0);
-const maxG=DATA.reduce((m,x)=>Math.max(m,x.giro),0);
-const fmtBRL=v=>"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+var maxV=0,maxG=0;
+for(var i=0;i<DATA.length;i++){
+  var tot=DATA[i].q*DATA[i].v;
+  if(tot>maxV)maxV=tot;
+  if(DATA[i].g>maxG)maxG=DATA[i].g;
+}
 
-function getColor(d){
-  if(!d.nome) return 0x0f1c2e;
-  const vn=(d.qty*d.vunit)/maxV, gn=d.giro/maxG;
-  if(vn>0.5&&gn<0.35) return 0xc53030;
-  if(vn>0.5&&gn>=0.35) return 0xb7791f;
-  if(vn<=0.5&&gn>=0.35) return 0x276749;
+function getCol(d){
+  if(!d.n)return 0x0f1c2e;
+  var vn=(d.q*d.v)/maxV,gn=d.g/maxG;
+  if(vn>0.5&&gn<0.35)return 0xc53030;
+  if(vn>0.5&&gn>=0.35)return 0xb7791f;
+  if(vn<=0.5&&gn>=0.35)return 0x276749;
   return 0x2b6cb0;
 }
-
-function getStatus(d){
-  if(!d.nome) return {txt:"Vazio",cls:""};
-  const vn=(d.qty*d.vunit)/maxV, gn=d.giro/maxG;
-  if(vn>0.5&&gn<0.35) return {txt:"Imobilizado critico",cls:"red"};
-  if(vn>0.5&&gn>=0.35) return {txt:"Critico operacional",cls:"yellow"};
-  if(vn<=0.5&&gn>=0.35) return {txt:"Giro saudavel",cls:"green"};
-  return {txt:"Baixo giro",cls:"blue"};
+function getSt(d){
+  if(!d.n)return{t:"Vazio",c:""};
+  var vn=(d.q*d.v)/maxV,gn=d.g/maxG;
+  if(vn>0.5&&gn<0.35)return{t:"Imobilizado critico",c:"r"};
+  if(vn>0.5&&gn>=0.35)return{t:"Critico operacional",c:"y"};
+  if(vn<=0.5&&gn>=0.35)return{t:"Giro saudavel",c:"g"};
+  return{t:"Baixo giro",c:"b"};
 }
-
-function mesesParado(saida){
-  if(!saida) return 0;
-  const p=saida.split("/");
-  const d=new Date(+p[2],+p[1]-1,+p[0]);
+function meses(s){
+  if(!s)return 0;
+  var a=s.split("/");
+  var d=new Date(+a[2],+a[1]-1,+a[0]);
   return Math.max(0,Math.round((new Date(2025,5,1)-d)/(1000*60*60*24*30)));
 }
+function brl(v){return"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
 
-// Global stats
-const filled=DATA.filter(d=>d.nome);
-const gTotal=filled.reduce((s,d)=>s+d.qty*d.vunit,0);
-const gPos=filled.length;
-const gCrit=filled.filter(d=>{const vn=(d.qty*d.vunit)/maxV,gn=d.giro/maxG;return vn>0.5&&gn<0.35;}).length;
-const gGiro=(filled.reduce((s,d)=>s+d.giro,0)/gPos).toFixed(1);
+var filled=DATA.filter(function(d){return d.n;});
+var gTot=filled.reduce(function(s,d){return s+d.q*d.v;},0);
+var gPos=filled.length;
+var gCrit=filled.filter(function(d){var vn=(d.q*d.v)/maxV,gn=d.g/maxG;return vn>0.5&&gn<0.35;}).length;
+var gGiro=(filled.reduce(function(s,d){return s+d.g;},0)/gPos).toFixed(1);
 
-function setGlobalKPI(){
-  document.getElementById("kv1").textContent=fmtBRL(gTotal);
-  document.getElementById("kv1").className="kpi-v";
-  document.getElementById("kv2").textContent=gPos+" pos.";
-  document.getElementById("kv2").className="kpi-v";
-  document.getElementById("kv3").textContent=gCrit+" criticos";
-  document.getElementById("kv3").className="kpi-v red";
-  document.getElementById("kv4").textContent=gGiro+"/mes";
-  document.getElementById("kv4").className="kpi-v green";
-  document.getElementById("kpi-mode").textContent="Clique numa posicao para detalhar";
+function setGlobal(){
+  document.getElementById("k1").textContent=brl(gTot);
+  document.getElementById("k1").className="kv";
+  document.getElementById("k2").textContent=gPos+" pos.";
+  document.getElementById("k2").className="kv";
+  document.getElementById("k3").textContent=gCrit+" criticos";
+  document.getElementById("k3").className="kv r";
+  document.getElementById("k4").textContent=gGiro+"/mes";
+  document.getElementById("k4").className="kv g";
+  document.getElementById("km").textContent="Clique numa posicao para detalhar";
+}
+function setItem(d){
+  var s=getSt(d),m=meses(d.s);
+  document.getElementById("k1").textContent=brl(d.q*d.v);
+  document.getElementById("k1").className="kv "+(s.c||"");
+  document.getElementById("k2").textContent=d.p;
+  document.getElementById("k2").className="kv";
+  document.getElementById("k3").textContent=m+"m parado";
+  document.getElementById("k3").className="kv "+(m>3?"r":m>1?"y":"g");
+  document.getElementById("k4").textContent=d.g.toFixed(1)+"/mes";
+  document.getElementById("k4").className="kv "+(d.g>3?"g":d.g>1?"y":"r");
+  document.getElementById("km").textContent=d.n.length>42?d.n.substring(0,42)+"...":d.n;
 }
 
-function setItemKPI(d){
-  const s=getStatus(d);
-  const m=mesesParado(d.saida);
-  document.getElementById("kv1").textContent=fmtBRL(d.qty*d.vunit);
-  document.getElementById("kv1").className="kpi-v "+(s.cls||"");
-  document.getElementById("kv2").textContent=d.pos;
-  document.getElementById("kv2").className="kpi-v";
-  document.getElementById("kv3").textContent=m+"m parado";
-  document.getElementById("kv3").className="kpi-v "+(m>3?"red":m>1?"yellow":"green");
-  document.getElementById("kv4").textContent=d.giro.toFixed(1)+"/mes";
-  document.getElementById("kv4").className="kpi-v "+(d.giro>3?"green":d.giro>1?"yellow":"red");
-  document.getElementById("kpi-mode").textContent=d.nome.length>45?d.nome.substring(0,45)+"...":d.nome;
-}
-
-// Scene
-const scene=new THREE.Scene();
+// THREE.JS SCENE
+var scene=new THREE.Scene();
 scene.background=new THREE.Color(0x060a14);
-scene.fog=new THREE.FogExp2(0x060a14,0.016);
-const W=window.innerWidth,H=window.innerHeight;
-const camera=new THREE.PerspectiveCamera(42,W/H,0.1,300);
+scene.fog=new THREE.FogExp2(0x060a14,0.015);
+
+var camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,300);
 camera.position.set(0,22,44);
 camera.lookAt(0,2,0);
-const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(W,H);
+
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-document.getElementById("canvas-container").appendChild(renderer.domElement);
+document.getElementById("c3d").appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xffffff,0.38));
-const sun=new THREE.DirectionalLight(0xffffff,0.85);
-sun.position.set(14,24,14);sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);scene.add(sun);
-const fill=new THREE.DirectionalLight(0x4455cc,0.18);fill.position.set(-12,6,-8);scene.add(fill);
+// Lights
+var amb=new THREE.AmbientLight(0xffffff,0.4);
+scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.85);
+sun.position.set(14,24,14);
+sun.castShadow=true;
+scene.add(sun);
+var fill=new THREE.DirectionalLight(0x4455cc,0.18);
+fill.position.set(-12,6,-8);
+scene.add(fill);
 
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshLambertMaterial({color:0x080c18}));
-floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+// Floor
+var floorMesh=new THREE.Mesh(
+  new THREE.PlaneGeometry(120,120),
+  new THREE.MeshLambertMaterial({color:0x080c18})
+);
+floorMesh.rotation.x=-Math.PI/2;
+floorMesh.receiveShadow=true;
+scene.add(floorMesh);
 scene.add(new THREE.GridHelper(120,60,0x0b1020,0x0b1020));
 
-const CORRS=["A","B","C","D"];
-const CNAMES=[["Corredor A","Agricola / Frotas"],["Corredor B","Eletrica"],["Corredor C","EPI + Limpeza"],["Corredor D","Industrial"]];
-const NSHELVES=5,NLEVELS=4;
-const SW=2.8,SH=5.0,SD=1.2;
-const CS=8.5,SS=3.5;
-const COFF=-((CORRS.length-1)*CS)/2;
-const clickables=[];
+// Corridor labels as sprites
+var CORRS=["A","B","C","D"];
+var CNAMES=[["Corredor A","Agricola / Frotas"],["Corredor B","Eletrica"],["Corredor C","EPI + Limpeza"],["Corredor D","Industrial"]];
+var NS=5,NL=4,SW=2.8,SH=5.0,SD=1.2,CS=8.5,SS=3.5;
+var COFF=-((CORRS.length-1)*CS)/2;
+var clickables=[];
 
-function makeSprite(line1,line2,x,y,z){
-  const c=document.createElement("canvas");
-  c.width=512;c.height=112;
-  const ctx=c.getContext("2d");
+function makeSprite(l1,l2,x,y,z){
+  var cv=document.createElement("canvas");
+  cv.width=512;cv.height=112;
+  var ctx=cv.getContext("2d");
   ctx.font="bold 28px Segoe UI";
   ctx.fillStyle="#90cdf4";
   ctx.textAlign="center";
-  ctx.fillText(line1,256,38);
+  ctx.fillText(l1,256,38);
   ctx.font="22px Segoe UI";
   ctx.fillStyle="#3a5a8a";
-  ctx.fillText(line2,256,70);
-  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));
+  ctx.fillText(l2,256,72);
+  var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthTest:false}));
   sp.scale.set(9,2,1);
   sp.position.set(x,y,z);
   scene.add(sp);
 }
 
-CORRS.forEach((corr,ci)=>{
-  const cx=COFF+ci*CS;
+for(var ci=0;ci<CORRS.length;ci++){
+  var corr=CORRS[ci];
+  var cx=COFF+ci*CS;
   makeSprite(CNAMES[ci][0],CNAMES[ci][1],cx,SH+2.8,0);
 
-  for(let si=0;si<NSHELVES;si++){
-    const sz=-(si*SS)+SS*(NSHELVES-1)/2;
-    const fm=new THREE.MeshLambertMaterial({color:0x142030});
-    [cx-SW/2+0.07,cx+SW/2-0.07].forEach(ox=>{
-      const m=new THREE.Mesh(new THREE.BoxGeometry(0.1,SH,SD),fm);
-      m.position.set(ox,SH/2,sz);m.castShadow=true;scene.add(m);
-    });
-    for(let li=0;li<=NLEVELS;li++){
-      const m=new THREE.Mesh(new THREE.BoxGeometry(SW,0.07,SD),new THREE.MeshLambertMaterial({color:0x19283c}));
-      m.position.set(cx,0.25+li*(SH/NLEVELS),sz);m.castShadow=true;m.receiveShadow=true;scene.add(m);
+  for(var si=0;si<NS;si++){
+    var sz=-(si*SS)+SS*(NS-1)/2;
+    var fm=new THREE.MeshLambertMaterial({color:0x142030});
+
+    // uprights
+    var upos=[-SW/2+0.07,SW/2-0.07];
+    for(var ui=0;ui<2;ui++){
+      var um=new THREE.Mesh(new THREE.BoxGeometry(0.1,SH,SD),fm);
+      um.position.set(cx+upos[ui],SH/2,sz);
+      um.castShadow=true;
+      scene.add(um);
     }
-    for(let li=0;li<NLEVELS;li++){
-      const py=0.25+(li*(SH/NLEVELS))+(SH/NLEVELS/2)+0.06;
-      const key=`${corr}-0${si+1}-P${li+1}`;
-      const d=DATA.find(x=>x.pos===key);
-      if(!d) continue;
-      const col=getColor(d);
-      const empty=!d.nome;
-      const geo=new THREE.BoxGeometry(2.3,0.72,SD*0.84);
-      const mat=new THREE.MeshLambertMaterial({color:col,transparent:empty,opacity:empty?0.1:0.9});
-      const mesh=new THREE.Mesh(geo,mat);
+    // boards
+    for(var li=0;li<=NL;li++){
+      var bm=new THREE.Mesh(new THREE.BoxGeometry(SW,0.07,SD),new THREE.MeshLambertMaterial({color:0x19283c}));
+      bm.position.set(cx,0.25+li*(SH/NL),sz);
+      bm.castShadow=true;bm.receiveShadow=true;
+      scene.add(bm);
+    }
+    // slots
+    for(var li2=0;li2<NL;li2++){
+      var py=0.25+(li2*(SH/NL))+(SH/NL/2)+0.06;
+      var key=corr+"-0"+(si+1)+"-P"+(li2+1);
+      var d=null;
+      for(var di=0;di<DATA.length;di++){if(DATA[di].p===key){d=DATA[di];break;}}
+      if(!d)continue;
+      var col=getCol(d);
+      var empty=!d.n;
+      var geo=new THREE.BoxGeometry(2.3,0.72,SD*0.84);
+      var mat=new THREE.MeshLambertMaterial({color:col,transparent:empty,opacity:empty?0.1:0.9});
+      var mesh=new THREE.Mesh(geo,mat);
       mesh.position.set(cx,py,sz);
       mesh.castShadow=true;mesh.receiveShadow=true;
-      mesh.userData={data:d,origPos:{x:cx,y:py,z:sz}};
+      mesh.userData={d:d,ox:cx,oy:py,oz:sz};
       scene.add(mesh);
       if(!empty){
         clickables.push(mesh);
-        const em=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.07}));
-        em.position.set(cx,py,sz);scene.add(em);
+        var em=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.07}));
+        em.position.set(cx,py,sz);
+        scene.add(em);
       }
     }
   }
-});
+}
 
-// Camera state
-let theta=-0.2,phi=0.85,radius=44;
-let tT=theta,tP=phi,tR=radius;
-let lookAt=new THREE.Vector3(0,2,0);
-let tLA=new THREE.Vector3(0,2,0);
-let mBtn=-1,px=0,py2=0,moved=false;
+// Camera control
+var th=-0.2,ph=0.85,ra=44;
+var tTh=th,tPh=ph,tRa=ra;
+var la=new THREE.Vector3(0,2,0);
+var tLa=new THREE.Vector3(0,2,0);
+var mBtn=-1,mpx=0,mpy=0,moved=false;
 
-renderer.domElement.addEventListener("mousedown",e=>{mBtn=e.button;px=e.clientX;py2=e.clientY;moved=false;e.preventDefault();});
-window.addEventListener("mouseup",()=>mBtn=-1);
-window.addEventListener("mousemove",e=>{
-  if(mBtn<0) return;
-  const dx=e.clientX-px,dy=e.clientY-py2;
+renderer.domElement.addEventListener("mousedown",function(e){mBtn=e.button;mpx=e.clientX;mpy=e.clientY;moved=false;e.preventDefault();});
+window.addEventListener("mouseup",function(){mBtn=-1;});
+window.addEventListener("mousemove",function(e){
+  if(mBtn<0)return;
+  var dx=e.clientX-mpx,dy=e.clientY-mpy;
   moved=true;
-  if(mBtn===0){tT-=dx*0.007;tP=Math.max(0.18,Math.min(1.45,tP-dy*0.007));}
-  else if(mBtn===2){
-    tLA.x-=Math.cos(theta)*dx*0.04;
-    tLA.z+=Math.sin(theta)*dx*0.04;
-    tLA.y+=dy*0.04;
-  }
-  px=e.clientX;py2=e.clientY;
+  if(mBtn===0){tTh-=dx*0.007;tPh=Math.max(0.18,Math.min(1.45,tPh-dy*0.007));}
+  else if(mBtn===2){tLa.x-=Math.cos(th)*dx*0.04;tLa.z+=Math.sin(th)*dx*0.04;tLa.y+=dy*0.04;}
+  mpx=e.clientX;mpy=e.clientY;
 });
-renderer.domElement.addEventListener("contextmenu",e=>e.preventDefault());
-renderer.domElement.addEventListener("wheel",e=>tR=Math.max(8,Math.min(85,tR+e.deltaY*0.04)));
+renderer.domElement.addEventListener("contextmenu",function(e){e.preventDefault();});
+renderer.domElement.addEventListener("wheel",function(e){tRa=Math.max(8,Math.min(85,tRa+e.deltaY*0.04));});
 
-window.resetCam=function(){tT=-0.2;tP=0.85;tR=44;tLA.set(0,2,0);closePanel();};
+window.resetCam=function(){tTh=-0.2;tPh=0.85;tRa=44;tLa.set(0,2,0);closePanel();};
 
-// Raycaster / click
-const ray=new THREE.Raycaster();
-const mv=new THREE.Vector2();
-let selMesh=null;
-renderer.domElement.addEventListener("mouseup",e=>{
-  if(moved||e.button!==0) return;
-  mv.x=(e.clientX/innerWidth)*2-1;
-  mv.y=-(e.clientY/innerHeight)*2+1;
-  ray.setFromCamera(mv,camera);
-  const hits=ray.intersectObjects(clickables);
-  if(hits.length) selectSlot(hits[0].object);
+// Raycaster
+var ray=new THREE.Raycaster();
+var mv2=new THREE.Vector2();
+var selMesh=null;
+renderer.domElement.addEventListener("mouseup",function(e){
+  if(moved||e.button!==0)return;
+  mv2.x=(e.clientX/innerWidth)*2-1;
+  mv2.y=-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(mv2,camera);
+  var hits=ray.intersectObjects(clickables);
+  if(hits.length>0)selectSlot(hits[0].object);
 });
 
 function selectSlot(mesh){
@@ -376,81 +387,83 @@ function selectSlot(mesh){
   selMesh=mesh;
   mesh.material.emissive=new THREE.Color(0xffffff);
   mesh.material.emissiveIntensity=0.28;
-  const p=mesh.userData.origPos;
-  tLA.set(p.x,p.y,p.z);tR=14;tP=0.62;
-  const d=mesh.userData.data;
-  setItemKPI(d);
-  showPanel(d);
+  tLa.set(mesh.userData.ox,mesh.userData.oy,mesh.userData.oz);
+  tRa=14;tPh=0.62;
+  setItem(mesh.userData.d);
+  showPanel(mesh.userData.d);
 }
 
 function showPanel(d){
-  const s=getStatus(d);
-  const m=mesesParado(d.saida);
-  const gp=Math.min(100,Math.round((d.giro/maxG)*100));
-  const gc=d.giro>3?"#276749":d.giro>1?"#b7791f":"#c53030";
-  document.getElementById("pn").textContent=d.nome;
-  document.getElementById("pp").textContent="Posicao: "+d.pos+" | "+d.grupo;
-  document.getElementById("gb-lbl").textContent="Giro: "+d.giro.toFixed(1)+" saidas/mes";
-  document.getElementById("gb-fill").style.cssText="width:"+gp+"%;background:"+gc;
-  document.getElementById("p-cod").textContent=d.cod;
-  document.getElementById("p-qty").textContent=d.qty+" un";
-  document.getElementById("p-vu").textContent=fmtBRL(d.vunit);
-  const vt=document.getElementById("p-vt");
-  vt.textContent=fmtBRL(d.qty*d.vunit);vt.className="psv "+(s.cls||"");
-  const gi=document.getElementById("p-gi");
-  gi.textContent=d.giro.toFixed(1)+" saidas/mes";gi.className="psv "+(d.giro>3?"green":d.giro>1?"yellow":"red");
-  const ms=document.getElementById("p-ms");
-  ms.textContent=m+" meses";ms.className="psv "+(m>3?"red":m>1?"yellow":"green");
-  document.getElementById("p-us").textContent=d.saida||"—";
-  const st=document.getElementById("p-st");
-  st.textContent=s.txt;st.className="psv "+s.cls;
-  document.getElementById("panel").classList.add("show");
+  var s=getSt(d),m=meses(d.s);
+  var gp=Math.min(100,Math.round((d.g/maxG)*100));
+  var gc=d.g>3?"#276749":d.g>1?"#b7791f":"#c53030";
+  document.getElementById("pnm").textContent=d.n;
+  document.getElementById("pps").textContent="Posicao: "+d.p+" | "+d.gr;
+  document.getElementById("gbl").textContent="Giro: "+d.g.toFixed(1)+" saidas/mes";
+  document.getElementById("gbf").style.width=gp+"%";
+  document.getElementById("gbf").style.background=gc;
+  document.getElementById("pcod").textContent=d.c;
+  document.getElementById("pqty").textContent=d.q+" un";
+  document.getElementById("pvu").textContent=brl(d.v);
+  var vt=document.getElementById("pvt");
+  vt.textContent=brl(d.q*d.v);vt.className="prv "+(s.c||"");
+  var gi=document.getElementById("pgi");
+  gi.textContent=d.g.toFixed(1)+" saidas/mes";gi.className="prv "+(d.g>3?"g":d.g>1?"y":"r");
+  var ms=document.getElementById("pms");
+  ms.textContent=m+" meses";ms.className="prv "+(m>3?"r":m>1?"y":"g");
+  document.getElementById("pus").textContent=d.s||"—";
+  var st=document.getElementById("pst");
+  st.textContent=s.t;st.className="prv "+s.c;
+  document.getElementById("pn").classList.add("on");
 }
 
 window.closePanel=function(){
-  document.getElementById("panel").classList.remove("show");
+  document.getElementById("pn").classList.remove("on");
   if(selMesh){selMesh.material.emissive=new THREE.Color(0);selMesh.material.emissiveIntensity=0;selMesh=null;}
-  setGlobalKPI();
-  tLA.set(0,2,0);tR=44;tP=0.85;
+  setGlobal();tLa.set(0,2,0);tRa=44;tPh=0.85;
 };
 
-document.querySelectorAll(".fb").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".fb").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    const c=btn.dataset.c;
-    clickables.forEach(m=>{
-      const show=c==="all"||m.userData.data.corredor===c;
-      m.material.opacity=show?0.9:0.04;
-      m.material.transparent=!show;
-    });
-    if(c!=="all"){
-      const ci=CORRS.indexOf(c);
-      tLA.set(COFF+ci*CS,3,0);tR=20;tP=0.7;
-    } else {
-      tLA.set(0,2,0);tR=44;tP=0.85;
-    }
-    closePanel();
-  });
-});
+// Filters
+var fbns=document.querySelectorAll(".fb");
+for(var fi=0;fi<fbns.length;fi++){
+  fbns[fi].addEventListener("click",(function(btn){
+    return function(){
+      for(var j=0;j<fbns.length;j++)fbns[j].classList.remove("on");
+      btn.classList.add("on");
+      var cv2=btn.getAttribute("data-c");
+      for(var k=0;k<clickables.length;k++){
+        var show=cv2==="all"||clickables[k].userData.d.corr===cv2;
+        clickables[k].material.opacity=show?0.9:0.04;
+        clickables[k].material.transparent=!show;
+      }
+      if(cv2!=="all"){
+        var ci2=CORRS.indexOf(cv2);
+        tLa.set(COFF+ci2*CS,3,0);tRa=20;tPh=0.7;
+      } else {
+        tLa.set(0,2,0);tRa=44;tPh=0.85;
+      }
+      closePanel();
+    };
+  })(fbns[fi]));
+}
 
-setGlobalKPI();
+setGlobal();
 
 function animate(){
   requestAnimationFrame(animate);
-  theta+=(tT-theta)*0.09;phi+=(tP-phi)*0.09;radius+=(tR-radius)*0.09;
-  lookAt.lerp(tLA,0.09);
+  th+=(tTh-th)*0.09;ph+=(tPh-ph)*0.09;ra+=(tRa-ra)*0.09;
+  la.lerp(tLa,0.09);
   camera.position.set(
-    lookAt.x+radius*Math.sin(phi)*Math.sin(theta),
-    lookAt.y+radius*Math.cos(phi),
-    lookAt.z+radius*Math.sin(phi)*Math.cos(theta)
+    la.x+ra*Math.sin(ph)*Math.sin(th),
+    la.y+ra*Math.cos(ph),
+    la.z+ra*Math.sin(ph)*Math.cos(th)
   );
-  camera.lookAt(lookAt);
+  camera.lookAt(la);
   renderer.render(scene,camera);
 }
 animate();
 
-window.addEventListener("resize",()=>{
+window.addEventListener("resize",function(){
   camera.aspect=innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
