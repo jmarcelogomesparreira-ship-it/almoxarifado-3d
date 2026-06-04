@@ -97,7 +97,7 @@ body{background:#080c18;font-family:'Segoe UI',sans-serif;overflow:hidden;color:
   <div class="ps"><span class="psl">Status</span><span class="psv" id="p-st">—</span></div>
 </div>
 <div id="nav-hint">Rotacionar: botão esquerdo<br>Mover: botão direito<br>Zoom: scroll</div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script>
 const DATA=[
   {pos:"A-01-P1",nome:"Filtro de óleo colheitadeira",cod:"10023401",corredor:"A",qty:8,vunit:187.50,giro:3.2,saida:"12/05/2025",grupo:"Agrícola"},
@@ -263,7 +263,7 @@ scene.add(new THREE.AmbientLight(0xffffff,0.38));
 const sun=new THREE.DirectionalLight(0xffffff,0.85);
 sun.position.set(14,24,14);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);scene.add(sun);
-scene.add(Object.assign(new THREE.DirectionalLight(0x4455cc,0.18),{position:new THREE.Vector3(-12,6,-8)}));
+const fill=new THREE.DirectionalLight(0x4455cc,0.18);fill.position.set(-12,6,-8);scene.add(fill);
 
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshLambertMaterial({color:0x080c18}));
 floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
